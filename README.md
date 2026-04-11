@@ -4,8 +4,8 @@
 
 ## Descripción
 
-Este primer laboratorio consiste en programar un controlador en un lenguaje de
+Este primer laboratorio consiste en programar un controlador en un lenguaje de programación (en este caso Python)
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE0MjQ3NTk1NTUsMzc4NjM1OTQ4LC03Nz
-cwODU2MzAsLTE1NzU4NDI0NjddfQ==
+eyJoaXN0b3J5IjpbMjA5ODgxMTEwNCwzNzg2MzU5NDgsLTc3Nz
+A4NTYzMCwtMTU3NTg0MjQ2N119
 -->
