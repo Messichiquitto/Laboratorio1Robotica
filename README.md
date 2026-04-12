@@ -37,7 +37,7 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 
 ## Implementación del controlador
 
-> """controlador_lab1 controller."""
+> """controlador_lab1 controller.
 from controller import Robot
 import random
 
@@ -52,12 +52,12 @@ right_motor.setPosition(float('inf'))
 left_motor.setVelocity(0.0)
 right_motor.setVelocity(0.0)
 
-# Variables de control para los experimentos
-# Cambiando el número el robot se comportará de formas distintas:
-# 1: Recto, 2: Curva, 3: Rotación, 4: Círculo, 5: Perturbaciones
+#Variables de control para los experimentos
+#Cambiando el número el robot se comportará de formas distintas:
+#1: Recto, 2: Curva, 3: Rotación, 4: Círculo, 5: Perturbaciones
 modo_experimento = 1
 
-# Constante de velocidad
+#Constante de velocidad
 V_BASE = 2.0
 
 def set_robot_velocity(vl, vr):
@@ -65,8 +65,8 @@ def set_robot_velocity(vl, vr):
     left_motor.setVelocity(vl)
     right_motor.setVelocity(vr)
 
-# Bucle principal de simulación 
-	while robot.step(timestep) != -1:
+#Bucle principal de simulación 
+while robot.step(timestep) != -1:
     
     if modo_experimento == 1:
         # Movimiento recto: vr = vl 
@@ -90,7 +90,9 @@ def set_robot_velocity(vl, vr):
         ruido_l = random.uniform(0.9, 1.1)
         ruido_r = random.uniform(0.9, 1.1)
         set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)
+   
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTcxOTU3MTczNSwtMTI0ODQxMTY3M119
+eyJoaXN0b3J5IjpbLTE1OTMxNzA3NTcsLTEyNDg0MTE2NzNdfQ
+==
 -->
