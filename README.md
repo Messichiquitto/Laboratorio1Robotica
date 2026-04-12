@@ -39,32 +39,28 @@ Para todos los experimentos se inicia desde el mismo punto tal que:
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Estado base" width="300" height="300">
 
-### Linea recta
+### 1. Linea recta
 
 Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png" alt="Linea recta" width="300" height="300">
 
-### Linea curva
+### 2. Linea curva
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
-<div style="display: flex; gap: 10px">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
-</div>
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
 
-### Giro sobre eje
+### 3. Giro sobre eje
 
 Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
-<div style="display: flex; gap: 10px">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
-</div>
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
 
 
-### Circulo
+### 4. Trayectoria circular
 
 El robot realiza un circulo
 
@@ -72,6 +68,14 @@ El robot realiza un circulo
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png" alt="Circulo 2" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
+
+### 5. Trayectoria con ruido
+
+El robot intenta seguir una trayectoria recta pero sufre ruido de forma aleatoria: 
+```
+ruido_l = random.uniform(1.0, 4)
+ruido_r = random.uniform(1.0, 4)
+```
 
 ## Implementación del controlador
 
