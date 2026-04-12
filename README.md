@@ -33,11 +33,11 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 |--|--| 
 | 1 |  |
 | 2 |  El robot avanza recto|
-| 32 | El robot realiza una curva sobre su mismo  |
+| 3 | El robot realiza una curva sobre su mismo  |
 | 4  |
 | 5 | |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE0MDUyNzA5MzIsLTEwMzAwODY3ODJdfQ
+eyJoaXN0b3J5IjpbLTE2NTU3NjIwMDgsLTEwMzAwODY3ODJdfQ
 ==
 -->
