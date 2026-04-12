@@ -39,6 +39,8 @@ Para todos los experimentos se inicia desde el mismo punto tal que:
 
 ![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png "Estado base")
 
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="alt text" width="300" height="200">
+
 ### Linea recta
 
 Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
@@ -56,7 +58,9 @@ Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
 Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%20sobre%20eje.png "Rotacion sobre eje")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png "Rotacion sobre eje 1")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png "Rotacion sobre eje 2")
+
 
 ### Circulo
 
