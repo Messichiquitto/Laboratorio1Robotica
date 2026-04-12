@@ -1,4 +1,4 @@
-# Laboratorio1Robotica
+# Laboratorio 1 Robotica
 
 ## Contenido
 1. [Descripción](#Descripcion)
