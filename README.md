@@ -42,9 +42,30 @@ Para todos los experimentos se inicia desde el mismo punto tal que:
 ### Linea recta
 
 Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Linea recta")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png "Linea recta")
 
-### Linea curva 
+### Linea curva
+
+Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png "Linea curva 1")
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png "Linea curva 2")
+
+### Giro sobre eje
+
+Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%20sobre%20eje.png "Rotacion sobre eje")
+
+### Circulo
+
+El robot realiza un circulo
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Circulo 1")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png "Circulo 2")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png "Circulo 3")
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png "Circulo 4")
 
 ## Implementación del controlador
 
