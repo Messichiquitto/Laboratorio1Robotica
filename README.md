@@ -130,7 +130,7 @@ Este cambio es para hacer el ruido más errático y pronunciado.
 ## Implementación del controlador
 
 ```python
-#   controlador_lab1 controller.
+"""controlador_lab1 controller."""
 from controller import Robot
 import random
 
