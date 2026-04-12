@@ -83,7 +83,7 @@ set_robot_velocity(1.5, 3.0)
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
 
-El robot traza un circulo sobre el suelo, similar al experimento 3, pero en este caso se utilizan unas velocidades fijas: $v_r = 1.5$ y $v_l = 3.0$. Cambiar las velocidades de forma proporcional solo afecta a la velocidad en que se mueve el robot, no el tamaño del circulo:
+El robot traza un circulo sobre el suelo, similar al experimento 3, pero en este caso se utilizan unas velocidades fijas: $v_r = 1.5$ y $v_l = 3.0$. Cambiar las velocidades de forma proporcional solo afecta a la velocidad en que se mueve el robot, no el tamaño del circulo, recordando la fórmula de velocidad angular:
 
 $$
 \omega = \frac{v_r-v_l}{L}
@@ -95,7 +95,7 @@ $$
 
 Si partimos desde la base $(0.1, 0.2)$, que mantiene una relación $1:2$, cualquier multiplo de estos dará el mismo circulo, pero el robot lo recorrerá a una velocidad distinta. En el codigo tenemos $a= 15; (1.5, 3.0)$.
 
-Entonces para cambiar el tamaño del circulo lo que hay que hacer es cambiar la proporción, en el experimento 2 se utiliza: 
+Para cambiar el tamaño del circulo se debe cambiar la proporción, por ejemplo, en el experimento 2 se utiliza: 
 
 $$
 \begin{gather*}
@@ -104,10 +104,14 @@ $$
 \end{gather*}
 $$
 
-Entonces, mientras menor sea la diferencia entre ambas ruedas más grande será el circulo y viceversa:
+Entonces, volviendo a la fórmula de velocidad angular:
 
-1. $99:100$ -> Circulo muy grande
-2. $1:100$ -> Circulo muy pequeño
+$$
+\omega = \frac{v_r-v_l}{L} \leftrightarrow \frac{\Delta v}{L}
+$$
+
+1. A menor $\Delta v$, más grande será el circulo y viceversa.
+2. A mayor $L$, más grande será el circulo y viceversa.
 
 ### 5. Trayectoria con ruido
 
