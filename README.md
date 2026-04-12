@@ -49,7 +49,7 @@ Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
-<div style="display: flex; gap: 10px">
+<div style="display: flex; gap: 20px">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
 </div>
@@ -58,8 +58,10 @@ Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
 Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png "Rotacion sobre eje 1")
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png "Rotacion sobre eje 2")
+<div style="display: flex; gap: 20px">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
+</div>
 
 
 ### Circulo
