@@ -17,11 +17,13 @@ Este primer laboratorio consiste en programar un controlador en un lenguaje de p
 El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la velocidad de la rueda derecha, v_l de la izquierda y L la distancia entre ellas.
 
  - Velocidad Lineal: 
-v = (v_r + v_l) 	/ 2
+-> 				v = (v_r + v_l) 	/ 2
+ - Velocidad Angular: 
+ -> w = (v_r - v_l) / L
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExODc5NTEzMDcsLTE3NzMzODk0MDgsOT
-EzMzM1MDEsLTE1NTY0OTI5MzgsMTE1ODUzNDY3OSwyMDk4ODEx
-MTA0LDM3ODYzNTk0OCwtNzc3MDg1NjMwLC0xNTc1ODQyNDY3XX
-0=
+eyJoaXN0b3J5IjpbLTQ5NTM1NDU5MCwtMTc3MzM4OTQwOCw5MT
+MzMzUwMSwtMTU1NjQ5MjkzOCwxMTU4NTM0Njc5LDIwOTg4MTEx
+MDQsMzc4NjM1OTQ4LC03NzcwODU2MzAsLTE1NzU4NDI0NjddfQ
+==
 -->
