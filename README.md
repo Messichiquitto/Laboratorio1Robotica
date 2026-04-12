@@ -27,17 +27,17 @@ El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la v
 
 El controlador nos permite alternar entre 5 distintos modos de experimentos mediante la variable modo_experimento.
 
-| 1 |  |
+| MODO |  | 
 |--|--|
-|2  |  |
 | 1 |  |
-||--|
-|2  |  |
-| 1 |  |
+| 2 |  |
+| 3 |  |
+| 4 |  |
+| 5 |  |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzQwMjIyMzE3LDE0MDE3ODYyNTcsLTIxMT
-A1OTU4MSwtMTc3MzM4OTQwOCw5MTMzMzUwMSwtMTU1NjQ5Mjkz
-OCwxMTU4NTM0Njc5LDIwOTg4MTExMDQsMzc4NjM1OTQ4LC03Nz
-cwODU2MzAsLTE1NzU4NDI0NjddfQ==
+eyJoaXN0b3J5IjpbLTE4MDM3OTM0MzIsMTQwMTc4NjI1NywtMj
+ExMDU5NTgxLC0xNzczMzg5NDA4LDkxMzMzNTAxLC0xNTU2NDky
+OTM4LDExNTg1MzQ2NzksMjA5ODgxMTEwNCwzNzg2MzU5NDgsLT
+c3NzA4NTYzMCwtMTU3NTg0MjQ2N119
 -->
