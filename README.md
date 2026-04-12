@@ -1,6 +1,11 @@
 # Laboratorio1Robotica
 
 ## Contenido
+1. [Descripción](#Descripcion)
+2. [Materiales, Herramientas](#materiales-herramientas)
+3. [Modelo Cinemático](#modelo-cinemático)
+4. [Experimentos Realizados](#experimentos-realizados)
+5. [Implementación del Controlador](#implementación-del-Controlador)
 
 ## Descripción
 
@@ -127,7 +132,7 @@ ruido_r = random.uniform(1.0, 4.0)
 
 Este cambio es para hacer el ruido más errático y pronunciado.
 
-## Implementación del controlador
+## Implementación del Controlador
 
 ```python
 """controlador_lab1 controller."""
