@@ -31,7 +31,7 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 |--|--|
 | 1 | El robot avanza recto |
 | 2 | El robot realiza una curva |
-| 3 |El robot gira sobre su propio eje  |
+| 3 | El robot gira sobre su propio eje  |
 | 4 | Trayectoria circular constante |
 | 5 | Simula un ruido |
 
@@ -49,7 +49,7 @@ Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
-<div style="display: flex; gap: 100px">
+<div style="display: flex; gap: 10px">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
 </div>
@@ -58,7 +58,7 @@ Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
 Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
-<div style="display: flex; gap: 50px">
+<div style="display: flex; gap: 10px">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
 </div>
@@ -68,10 +68,16 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
 El robot realiza un circulo
 
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Circulo 1")
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png "Circulo 2")
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png "Circulo 3")
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png "Circulo 4")
+![alt text]( "Circulo 1")
+![alt text]( "Circulo 2")
+![alt text]( "Circulo 3")
+![alt text]( "Circulo 4")
+<div style="display: flex; gap: 10px">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Circulo 1" width="300" height="300">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png" alt="Circulo 2" width="300" height="300">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
+</div>
 
 ## Implementación del controlador
 
