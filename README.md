@@ -45,16 +45,16 @@ Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png" alt="Linea recta" width="300" height="300">
 
-El robot avanza sin problemas en una linea recta, ajustando la velocidad de las ruedas no afecta la dirección en la que se mueve siempre que la velocidad de ambas ruedas sea la misma. 
+El robot avanza sin problemas en una linea recta. Ajustar la velocidad de las ruedas no afecta la dirección en la que se mueve siempre que ambas tengan la misma velocidad entre ellas. 
 
 ### 2. Linea curva
 
-Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
+Cuando las velocidades de ambas ruedas es distinta: $v_r \neq v_l$
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
 
-El robot traza una curva de forma constante, la curva se puede volver mas o menos pronunciada, o cambiar el lado al que se curva según como se cambien las variables.
+El robot traza una curva a un ritmo constante, la curva se puede volver más o menos pronunciada, o cambiar el lado al que se curva según como se cambien las variables.
 
 ### 3. Giro sobre eje
 
@@ -63,7 +63,7 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
 
-El robot gira sobre su propio eje a una velocidad constante, si se invierte la velocidad de las ruedas el robot gira del mismo modo hacia el otro lado.
+El robot gira sobre su propio eje a una velocidad constante en sentido antihorario, si se invierte la velocidad de las ruedas ($-v_r=v_l$) el robot gira en sentido horario.
 
 ### 4. Trayectoria circular
 
@@ -94,19 +94,19 @@ $$
 \end{gather*}
 $$
 
-Entonces, mientras mayor sea la diferencia entre ambos factores más grande será el circulo y viceversa:
+Entonces, mientras menor sea la diferencia entre ambas ruedas más grande será el circulo y viceversa:
 
 1. $99:100$ -> Circulo muy grande
 2. $1:100$ -> Circulo muy pequeño
 
 ### 5. Trayectoria con ruido
 
-El robot intenta seguir una trayectoria recta pero sufre ruido de forma aleatoria.
+El robot intenta seguir una trayectoria recta pero se simulan perturbaciones añadiendo ruido de forma aleatoria a las ruedas.
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%201.png" alt="Ruido 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%202.png" alt="Ruido 2" width="300" height="300">
 
-El robot sufre desvios gracias al ruido que se le agregra en cada rueda de forma aleatoria, en el codigo original los parametros son:
+El robot sufre desvios gracias al ruido que se agregra a cada rueda de forma aleatoria, en el codigo original los parametros son:
 
 ```python
 ruido_l = random.uniform(0.9, 1.1)
@@ -116,11 +116,11 @@ ruido_r = random.uniform(0.9, 1.1)
 Pero para el testeo se cambio a:
 
 ```python
-ruido_l = random.uniform(1.0, 4)
-ruido_r = random.uniform(1.0, 4)
+ruido_l = random.uniform(1.0, 4.0)
+ruido_r = random.uniform(1.0, 4.0)
 ```
 
-Este cambio es para hacer el ruido mucho más pronunciado y errático.
+Este cambio es para hacer el ruido más errático y pronunciado.
 
 ## Implementación del controlador
 
