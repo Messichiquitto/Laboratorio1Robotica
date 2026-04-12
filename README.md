@@ -88,7 +88,8 @@ $$
 \frac{a(v_r-(2\cdot v_r))}{L}
 $$
 
-Si partimos desde la base $(0.1, 0.2)$, que mantiene una relación $1:2$, cualquier multiplo de estos dará el mismo circulo, pero el robot lo recorrerá a una velocidad distinta, de modo que en el ejemplo tenemos $a= 15; (1.5, 3.0)$.
+Si partimos desde la base $(0.1, 0.2)$, que mantiene una relación $1:2$, cualquier multiplo de estos dará el mismo circulo, pero el robot lo recorrerá a una velocidad distinta. En el codigo tenemos $a= 15; (1.5, 3.0)$.
+
 Entonces para cambiar el tamaño del circulo lo que hay que hacer es cambiar la proporción, en el experimento 2 se utiliza: 
 
 $$
