@@ -23,8 +23,11 @@ El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la v
 - Posición:
 -> x_t + 1 = x_t + v * t_f - t_i
 
+## Experimentos Realizados
+
+El controlador nos permite alternar entre 4 distintos modos de experimentos mediante la variable
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQyNjY3MzMzNiwtMTc3MzM4OTQwOCw5MT
+eyJoaXN0b3J5IjpbLTIxMTA1OTU4MSwtMTc3MzM4OTQwOCw5MT
 MzMzUwMSwtMTU1NjQ5MjkzOCwxMTU4NTM0Njc5LDIwOTg4MTEx
 MDQsMzc4NjM1OTQ4LC03NzcwODU2MzAsLTE1NzU4NDI0NjddfQ
 ==
