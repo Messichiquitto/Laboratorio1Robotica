@@ -14,7 +14,7 @@ Este primer laboratorio consiste en programar un controlador en un lenguaje de p
  - Entorno: Área Rectangular 2 x 2.
 
 ## Modelo Cinemático
-El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la velocidad de la rueda derecha, v_l de la izquierda y L la distancia entre ellas.
+El movimiento del robot se rige por las siguientes ecuaciones, donde $v_r$ es la velocidad de la rueda derecha, $v_l$ de la izquierda y $L$ la distancia entre ellas.
 
  - Velocidad Lineal: 
 -> 				$v=\frac{(v_r+v_l)}{2}$
@@ -36,5 +36,5 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 | 5 |  |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY2MDY4MTg1Ml19
+eyJoaXN0b3J5IjpbLTI1MzgxMTc2OF19
 -->
