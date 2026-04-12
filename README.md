@@ -37,20 +37,22 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 
 Para todos los experimentos se inicia desde el mismo punto tal que:
 
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="alt text" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Estado base" width="300" height="300">
 
 ### Linea recta
 
 Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png" alt="alt text" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png" alt="Linea recta" width="300" height="300">
 
 ### Linea curva
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="alt text" width="300" height="300">
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="alt text" width="300" height="300">
+<div style="display: flex; gap: 10px">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
+    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
+</div>
 
 ### Giro sobre eje
 
