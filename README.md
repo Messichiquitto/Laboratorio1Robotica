@@ -64,8 +64,8 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
 El robot realiza un circulo:
 
-```
-set_robot_velocity(1.5, 3.0)`
+```python
+set_robot_velocity(1.5, 3.0)
 ```
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Circulo 1" width="300" height="300">
@@ -77,7 +77,7 @@ set_robot_velocity(1.5, 3.0)`
 
 El robot intenta seguir una trayectoria recta pero sufre ruido de forma aleatoria: 
 
-```
+```python
 ruido_l = random.uniform(1.0, 4)
 ruido_r = random.uniform(1.0, 4)
 ```
