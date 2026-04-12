@@ -62,7 +62,9 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
 ### 4. Trayectoria circular
 
-El robot realiza un circulo
+El robot realiza un circulo:
+
+`set_robot_velocity(1.5, 3.0)`
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Circulo 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png" alt="Circulo 2" width="300" height="300">
