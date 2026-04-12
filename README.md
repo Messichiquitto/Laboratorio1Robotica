@@ -45,12 +45,16 @@ Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20recta.png" alt="Linea recta" width="300" height="300">
 
+El robot avanza sin problemas en una linea recta, ajustando la velocidad de las ruedas no afecta la dirección en la que se mueve siempre que la velocidad de ambas ruedas sea la misma. 
+
 ### 2. Linea curva
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
+
+El robot traza una curva de forma constante, la curva se puede volver mas o menos pronunciada, o cambiar el lado al que se curva según como se cambien las variables.
 
 ### 3. Giro sobre eje
 
@@ -59,6 +63,7 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%201.png" alt="Rotacion sobre eje 1" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Rotacion%202.png" alt="Rotacion sobre eje 2" width="300" height="300">
 
+El robot gira sobre su propio eje a una velocidad constante, si se invierte la velocidad de las ruedas el robot gira del mismo modo hacia el otro lado.
 
 ### 4. Trayectoria circular
 
@@ -73,17 +78,49 @@ set_robot_velocity(1.5, 3.0)
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
 
+El robot traza un circulo sobre el suelo, similar al experimento 3, pero en este caso se utilizan unas velocidades fijas: $v_r = 1.5$ y $v_l = 3.0$. Cambiar las velocidades de forma proporcional solo afecta a la velocidad en que se mueve el robot, no el tamaño del circulo:
+
+$$
+\omega = \frac{v_r-v_l}{L}\to \frac{a(v_r-(2\cdot v_r))}{L}
+$$
+
+Si partimos desde la base $(0.1, 0.2)$, que mantiene una relación $1:2$, cualquier multiplo de estos dará el mismo circulo, pero el robot lo recorrerá a una velocidad distinta, en el ejemplo tenemos que para $a= 15; (1.5, 3.0)$.
+Entonces para cambiar el tamaño del circulo lo que hay que hacer es cambiar la proporción, en el experimento 2 se utiliza: 
+
+$$
+\begin{gather*}
+(2.0\cdot0.8,2.0) \\
+\frac{1.6}{2.0} \to \frac{16}{20}=\frac{4}{5} \to 4:5
+\end{gather*}
+$$
+
+Entonces, mientras mayor sea la diferencia entre ambos factores más grande será el circulo y viceversa:
+
+1. $99:100$ -> Circulo muy grande
+2. $1:100$ -> Circulo muy pequeño
+
 ### 5. Trayectoria con ruido
 
-El robot intenta seguir una trayectoria recta pero sufre ruido de forma aleatoria: 
+El robot intenta seguir una trayectoria recta pero sufre ruido de forma aleatoria.
+
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%201.png" alt="Ruido 1" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%202.png" alt="Ruido 2" width="300" height="300">
+
+El robot sufre desvios gracias al ruido que se le agregra en cada rueda de forma aleatoria, en el codigo original los parametros son:
+
+```python
+ruido_l = random.uniform(0.9, 1.1)
+ruido_r = random.uniform(0.9, 1.1)
+```
+
+Pero para el testeo se cambio a:
 
 ```python
 ruido_l = random.uniform(1.0, 4)
 ruido_r = random.uniform(1.0, 4)
 ```
 
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%201.png" alt="Ruido 1" width="300" height="300">
-<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Ruido%202.png" alt="Ruido 2" width="300" height="300">
+Este cambio es para hacer el ruido mucho más pronunciado y errático.
 
 ## Implementación del controlador
 
@@ -106,7 +143,7 @@ right_motor.setVelocity(0.0)
 # Variables de control para los experimentos
 # Cambiando el número el robot se comportará de formas distintas:
 # 1: Recto, 2: Curva, 3: Rotación, 4: Círculo, 5: Perturbaciones
-modo_experimento = 5
+modo_experimento = 1
 
 # Constante de velocidad
 V_BASE = 2.0
@@ -138,7 +175,7 @@ while robot.step(timestep) != -1:
     elif modo_experimento == 5:
         # Extensión: Simular perturbaciones en los actuadores
         # Se añade un ruido aleatorio a la velocidad base de ambos motores
-        ruido_l = random.uniform(1.0, 4)
-        ruido_r = random.uniform(1.0, 4)
+        ruido_l = random.uniform(0.9, 1.1)
+        ruido_r = random.uniform(0.9, 1.1)
         set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)
 ```
