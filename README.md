@@ -29,12 +29,13 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 
 | MODO | Resultado Esperado | 
 |--|--|
-| 1 |  |
-| 2 |  |
-| 3 |El robot avanza recto  |
-| 4 |  |
-| 5 |  |
+| 1 | El robot avanza recto |
+| 2 | El robot realiza una curva |
+| 3 |El robot gira sobre su propio eje  |
+| 4 | Trayectoria circular constante |
+| 5 | Simula un ruido |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEwNTk4MDE5NiwtMTI0ODQxMTY3M119
+eyJoaXN0b3J5IjpbLTExMDQ4MDcxMzAsLTEyNDg0MTE2NzNdfQ
+==
 -->
