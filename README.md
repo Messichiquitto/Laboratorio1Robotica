@@ -20,9 +20,10 @@ El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la v
 -> 				v = (v_r + v_l) 	/ 2
  - Velocidad Angular: 
  -> w = (v_r - v_l) / L
-
+- Posición:
+-> x_t + 1 =
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ5NTM1NDU5MCwtMTc3MzM4OTQwOCw5MT
+eyJoaXN0b3J5IjpbMTUwNzg5MTA5NiwtMTc3MzM4OTQwOCw5MT
 MzMzUwMSwtMTU1NjQ5MjkzOCwxMTU4NTM0Njc5LDIwOTg4MTEx
 MDQsMzc4NjM1OTQ4LC03NzcwODU2MzAsLTE1NzU4NDI0NjddfQ
 ==
