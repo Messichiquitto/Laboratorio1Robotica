@@ -28,16 +28,16 @@ El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la v
 El controlador nos permite alternar entre 5 distintos modos de experimentos mediante la variable modo_experimento.
 
 | MODO | Resultado | 
-|--|--|
-| 1 |  |
-| 2 |  |
+|--|--| 
+| 1 | El robot avanza recto|
+| 2 | El robot realiza una curva s |
 | 3 |  |
 | 4 |  |
 | 5 |  |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMzkwODIzNTMsMTQwMTc4NjI1NywtMj
-ExMDU5NTgxLC0xNzczMzg5NDA4LDkxMzMzNTAxLC0xNTU2NDky
-OTM4LDExNTg1MzQ2NzksMjA5ODgxMTEwNCwzNzg2MzU5NDgsLT
-c3NzA4NTYzMCwtMTU3NTg0MjQ2N119
+eyJoaXN0b3J5IjpbLTc0NzgyMjg1MSwxNDAxNzg2MjU3LC0yMT
+EwNTk1ODEsLTE3NzMzODk0MDgsOTEzMzM1MDEsLTE1NTY0OTI5
+MzgsMTE1ODUzNDY3OSwyMDk4ODExMTA0LDM3ODYzNTk0OCwtNz
+c3MDg1NjMwLC0xNTc1ODQyNDY3XX0=
 -->
