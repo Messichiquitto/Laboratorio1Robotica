@@ -23,6 +23,8 @@ El movimiento del robot se rige por las siguientes ecuaciones, donde $\large v_r
 - Posición:
 -> $x_t + 1 = x_t + v * t_f - t_i$
 
+hola $hola$
+
 ## Experimentos Realizados
 
 El controlador nos permite alternar entre 5 distintos modos de experimentos mediante la variable modo_experimento.
@@ -36,5 +38,5 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 | 5 |  |
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTUxOTAzNTY0NV19
+eyJoaXN0b3J5IjpbMjAwOTE4MDMzXX0=
 -->
