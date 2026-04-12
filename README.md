@@ -49,7 +49,7 @@ Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
 
 Cuando las velocidades de ambas ruedas son distintas: $v_r \neq v_l$
 
-<div style="display: flex; gap: 50px">
+<div style="display: flex; gap: 100px">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%201.png" alt="Linea curva 1" width="300" height="300">
     <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Linea%20curva%202.png" alt="Linea curva 2" width="300" height="300">
 </div>
