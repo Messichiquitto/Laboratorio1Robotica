@@ -90,6 +90,10 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
         ruido_l = random.uniform(0.9, 1.1)
         ruido_r = random.uniform(0.9, 1.1)
         set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)
+
+# Imagenes!!
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Linea recta")
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQ3MTkyNzI2NV19
+eyJoaXN0b3J5IjpbLTE4MzM0NTYyMjJdfQ==
 -->
