@@ -10,10 +10,13 @@ Este primer laboratorio consiste en programar un controlador en un lenguaje de p
 
  - Simulador: Webots R2025a.
  - Lenguaje: Python.
- - Robot: Mod
+ - Robot: Modelo e-puck.
+ - Entorno: Área Rectangular 2 x 2.
+
+## Modelo Cinemático
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgyMzIxOTMwNCwxMTU4NTM0Njc5LDIwOT
-g4MTExMDQsMzc4NjM1OTQ4LC03NzcwODU2MzAsLTE1NzU4NDI0
-NjddfQ==
+eyJoaXN0b3J5IjpbLTE1NTY0OTI5MzgsMTE1ODUzNDY3OSwyMD
+k4ODExMTA0LDM3ODYzNTk0OCwtNzc3MDg1NjMwLC0xNTc1ODQy
+NDY3XX0=
 -->
