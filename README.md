@@ -37,7 +37,7 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 
 ## Implementación del controlador
 
-	```controlador_lab1 controller
+	controlador_lab1 controller
 	from controller import Robot
 	import random
 	
@@ -89,8 +89,7 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
         # Se añade un ruido aleatorio a la velocidad base de ambos motores
         ruido_l = random.uniform(0.9, 1.1)
         ruido_r = random.uniform(0.9, 1.1)
-        set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)```
-
+        set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTI3MjI5MzA3LC0xMjQ4NDExNjczXX0=
+eyJoaXN0b3J5IjpbMTQ3MTkyNzI2NV19
 -->
