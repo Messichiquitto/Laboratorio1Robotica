@@ -68,16 +68,10 @@ Cuando las velocidades de las ruedas son opuestas: $v_r = -v_l$
 
 El robot realiza un circulo
 
-![alt text]( "Circulo 1")
-![alt text]( "Circulo 2")
-![alt text]( "Circulo 3")
-![alt text]( "Circulo 4")
-<div style="display: flex; gap: 10px">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Circulo 1" width="300" height="300">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png" alt="Circulo 2" width="300" height="300">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
-    <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
-</div>
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png" alt="Circulo 1" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%202.png" alt="Circulo 2" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%203.png" alt="Circulo 3" width="300" height="300">
+<img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%204.png" alt="Circulo 4" width="300" height="300">
 
 ## Implementación del controlador
 
