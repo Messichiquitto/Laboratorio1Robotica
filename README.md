@@ -15,8 +15,10 @@ Este primer laboratorio consiste en programar un controlador en un lenguaje de p
 
 ## Modelo Cinemático
 El movimiento del robot se rige por las siguientes ecuaciones, donde v_r es la velocidad de la rueda derecha, v_l de la izquierda y L la distancia entre ellas
+
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE3NzMzODk0MDgsOTEzMzM1MDEsLTE1NT
-Y0OTI5MzgsMTE1ODUzNDY3OSwyMDk4ODExMTA0LDM3ODYzNTk0
-OCwtNzc3MDg1NjMwLC0xNTc1ODQyNDY3XX0=
+eyJoaXN0b3J5IjpbOTY0MTQ1Nzg4LC0xNzczMzg5NDA4LDkxMz
+MzNTAxLC0xNTU2NDkyOTM4LDExNTg1MzQ2NzksMjA5ODgxMTEw
+NCwzNzg2MzU5NDgsLTc3NzA4NTYzMCwtMTU3NTg0MjQ2N119
 -->
