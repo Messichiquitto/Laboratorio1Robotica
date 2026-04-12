@@ -35,6 +35,17 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
 | 4 | Trayectoria circular constante |
 | 5 | Simula un ruido |
 
+Para todos los experimentos se inicia desde el mismo punto tal que:
+
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Estado%20base.png "Estado base")
+
+### Linea recta
+
+Cuando las velocidades de ambas ruedas es igual: $v_r = v_l$
+![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Linea recta")
+
+### Linea curva 
+
 ## Implementación del controlador
 
 	controlador_lab1 controller
@@ -90,10 +101,3 @@ El controlador nos permite alternar entre 5 distintos modos de experimentos medi
         ruido_l = random.uniform(0.9, 1.1)
         ruido_r = random.uniform(0.9, 1.1)
         set_robot_velocity(V_BASE * ruido_l, V_BASE * ruido_r)
-
-# Imagenes!!
-
-![alt text](https://github.com/Messichiquitto/Laboratorio1Robotica/blob/main/testing%20images/Circulo%201.png "Linea recta")
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4MzM0NTYyMjJdfQ==
--->
