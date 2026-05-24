@@ -47,6 +47,7 @@ Si el robot navegara utilizando únicamente estas lecturas crudas (`raw_measurem
 ### Análisis y Explicación del Gráfico de Señales
 
 <img src="https://github.com/Messichiquitto/Laboratorio1Robotica/blob/aed98f336570c488ef7a9d3205a254c7921d110d/capturasWebots/comparativa_senales_lab2.png" alt="Gráfico Señales">
+
 El gráfico expone el comportamiento dinámico de la distancia frontal estimada durante un evento real de aproximación y evasión de un obstáculo en un intervalo de 11 muestras ($64\text{ ms}$ por paso). El análisis permite contrastar la respuesta de la medición cruda frente a las dos técnicas de filtrado implementadas.
 
 #### 1. Transición Inicial e Inicialización del Filtro (Muestras 1 a 3)
