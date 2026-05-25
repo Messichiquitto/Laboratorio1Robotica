@@ -423,7 +423,71 @@ A continuación se analiza el comportamiento del robot en cada escenario, contra
   	- Filtro de Kalman: La estimación fusionada proporcionó una transición suave y estable. El robot avanzó mayormente con velocidad constante y, al cruzar el umbral de seguridad,
   	  giró de forma decisiva hacia el lado con mayor espacio. La incorporación de la predicción por encoders evitó que variaciones puntuales del sensor IR desencadenaran acciones
   	  incorrectas.
-
+  	  
 ### Mundo complejo: pasillo estrecho formado por tres paredes.
+- Descripción: Arena de 2 x 2 metros con tres cajas dispuestas de forma que el robor debe esquivarlas una tras otra.
+- Comportamiento observado:
+  	- Medición cruda: El robot mostraba un movimiento entrecortado (“titubeo”) al acercarse a cada caja. Los picos de ruido provocaban giros innecesarios incluso antes de alcanzar
+  	  el umbral real de seguridad. Sin embargo logra pasar las cajas sin lograr colisiones en estas.
+  	- Filtro simple (EMA): Se redujeron las oscilaciones, pero persistió un leve retardo en la detección de los bordes de las cajas. El robot logró esquivar las tres cajas sin
+  	  colisiones, aunque realizó algunos giros “indecisos” cuando la distancia frontal estimada por EMA fluctuaba cerca del umbral (aproximadamente 3‑5 giros extra por recorrido).
+  	- Filtro de Kalman: El robot recorrió el pasillo de manera fluida, manteniéndose centrado gracias a la estimación robusta de la distancia frontal. Al llegar al giro, los
+  	  sensores laterales permitieron una rotación precisa sin colisiones. La predicción cinemática (encoders) compensó las lecturas ruidosas de los sensores IR cercanos a las
+  	  paredes, evitando falsas activaciones del giro de emergencia. El tiempo medio de salida fue de 22 s (vs. 28 s con EMA y sin completar con crudo).
+
+## Conclusiones finales
+
+La implementación del Filtro de Kalman escalar en C para estimar la distancia frontal al obstáculo más cercano demostró ser superior tanto al uso de mediciones crudas como al filtrado simple (EMA) en el contexto de navegación reactiva para el robot e‑puck en Webots. Las principales conclusiones son:
+
+1. Los sensores de infrarrojos presentan una alta sensibilidad a la rugosidad de las superficies y al ángulo de incidencia. El Filtro de Kalman, al combinar una predicción
+   cinemática (encoders) con la corrección por medición, entrega una distancia frontal suave y coherente, eliminando los picos erráticos que causan comportamientos de “titubeo”.
+
+2. Robustez en entornos estrechos: En el pasillo complejo, el filtro permitió estimar la distancia a la pared frontal incluso cuando los sensores laterales emitían lecturas
+   ruidosas. La etapa de predicción evita que una caída transitoria de la medición IR active falsamente la maniobra de evasión.
+
+3. Mejora en la toma de decisiones: La lógica reactiva (avanzar si distancia estimada > SAFE_DISTANCE, girar hacia el lado más libre) se beneficia directamente de la estimación
+   fusionada. Las decisiones son más estables y requieren menos correcciones posteriores, reduciendo el tiempo total de navegación.
+
+4. Limitaciones del filtro simple (EMA): Aunque suaviza la señal, introduce un retardo de fase que puede ser crítico en pasillos angostos. Además, no incorpora información del
+   movimiento del robot, por lo que sigue siendo vulnerable a ruidos de alta frecuencia cuando el robot está en movimiento.
+
+5. Validez del modelo cinemático: La precisión de la predicción depende directamente de la correcta conversión de encoders a desplazamiento lineal (s=rθs=rθ ). Con un radio de rueda
+   calibrado (0.0205 m) y un paso de simulación fijo (64 ms), el avance estimado por encoders resultó confiable.
+
+6. Ajuste de parámetros críticos: El valor SAFE_DISTANCE = 0.047 m (4.7 cm) demostró ser adecuado para reaccionar con anticipación sin provocar giros excesivos. El TURN_SPEED = 3.0 rad/s igual a la velocidad de crucero permite rotaciones rápidas pero controladas.
+
+En síntesis, el laboratorio cumple con el objetivo de demostrar cómo la fusión sensorial mediante un Filtro de Kalman mejora sustancialmente la navegación reactiva, haciendo al robot más confiable y eficiente tanto en entornos simples como complejos.
+
+## Instrucciones para ejecutar la simulación (controlador en C)
+
+### Requisitos previos
+
+- Webots versión R2025a o R2024 (compatible con controladores en C).
+- Compilador de C (gcc, clang) – Webots compila automáticamente el controlador al abrir el mundo.
+- Sistema operativo: Windows, Linux o macOS.
+
+### Pasos de ejecución
+
+1. Clonar repositoio
+
+```
+git clone https://github.com/Messichiquitto/Laboratorio1Robotica.git
+cd Laboratorio1Robotica
+```
+2. Abrir Webots y cargar el mundo deseado:
+   - Mundo simple: Archivo → Abrir mundos → worlds/mundo_simple.wbt
+   - Mundo complejo: Archivo → Abrir mundos → worlds/mundo_complejo.wbt
+3. Configurar el controlador en C:
+   - El código fuente en C debe ubicarse en controllers/lab2_controller/lab2_controller.c.
+   - Webots compilará automáticamente el controlador al iniciar la simulación. Asegúrese de que en el nodo E-puck el campo controller esté configurado como "lab2_controller" (sin
+     extensión).
+4. Ejecutar la simulación
+   - Presione el botón «Run» (o Ctrl+R).
+   - El robot comenzará a moverse según la lógica reactiva. En la consola de Webots se imprimirán cada ~0.5 s las distancias estimadas (cruda, EMA, Kalman) y el avance por encoders.
+5. Verificación de resultados
+   - Se puede observar el comportamiento en la vista 3D: debe esquivar obstáculos sin colisiones.
+   - Para modificar parámetros (por ejemplo, SAFE_DISTANCE o KALMAN_R), edite el archivo lab2_controller.c, guarde y Webots recompilará automáticamente antes de la siguiente
+     ejecución.
+
 
 
