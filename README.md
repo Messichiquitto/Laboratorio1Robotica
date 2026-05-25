@@ -468,7 +468,7 @@ En síntesis, el laboratorio cumple con el objetivo de demostrar cómo la fusió
 
 ### Pasos de ejecución
 
-1. Clonar repositoio
+1. Clonar repositorio (o descargar los archivos)
 
 ```
 git clone https://github.com/Messichiquitto/Laboratorio1Robotica.git
