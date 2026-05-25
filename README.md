@@ -342,3 +342,21 @@ int main(int argc, char **argv) {
     return 0;
 }
 ```
+## Comparativa del rendimiento de dos mundos
+
+A continuación se analiza el comportamiento del robot en cada escenario, contrastando el uso exclusivo de mediciones crudas, el filtro simple (EMA) y la estimación del Filtro de Kalman.
+
+### Mundo simple: tres cajas con obstaculos aislados
+- Descripción: Arena de 2 x 2 metros con tres cajas dispuestas de forma que el robor debe esquivarlas una tras otra.
+- Comportamiento observado:
+  	- Medición cruda: El robot mostraba un movimiento entrecortado (“titubeo”) al acercarse a cada caja. Los picos de ruido provocaban giros innecesarios incluso antes de alcanzar
+  	  el umbral real de seguridad. Sin embargo logra pasar las cajas sin lograr colisiones en estas.
+  	- Filtro simple (EMA): Se redujeron las oscilaciones, pero persistió un leve retardo en la detección de los bordes de las cajas. El robot logró esquivar las tres cajas sin
+  	  colisiones, aunque realizó algunos giros “indecisos” cuando la distancia frontal estimada por EMA fluctuaba cerca del umbral (aproximadamente 3‑5 giros extra por recorrido).
+  	- Filtro de Kalman: La estimación fusionada proporcionó una transición suave y estable. El robot avanzó mayormente con velocidad constante y, al cruzar el umbral de seguridad,
+  	  giró de forma decisiva hacia el lado con mayor espacio. La incorporación de la predicción por encoders evitó que variaciones puntuales del sensor IR desencadenaran acciones
+  	  incorrectas.
+
+### Mundo complejo: pasillo estrecho formado por tres paredes.
+
+
