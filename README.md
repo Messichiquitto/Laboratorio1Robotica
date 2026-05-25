@@ -1,5 +1,10 @@
 # Laboratorio 2 Robótica
 
+- Alex Parada
+- Gabriel Reyes
+- Benjamín Soto
+- Diego Zuñiga
+  
 ## Contenido
 1. [Descripción](#descripción)
 2. [Materiales, Herramientas](#materiales-herramientas)
