@@ -3,7 +3,7 @@
 - Alex Parada
 - Gabriel Reyes
 - Benjamín Soto
-- Diego Zuñiga
+- Diego Zúñiga
   
 ## Contenido
 1. [Descripción](#descripción)
