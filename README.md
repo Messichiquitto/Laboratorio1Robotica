@@ -135,6 +135,68 @@ $$
 
 $Q = 0.0001$, lo que indica una alta confianza en lo encoders, esto significa que la incertidumbre tiene muy poco crecimiento por cada ciclo.
 
+### Corrección
+
+Primero se calcula la ganancia de Kalman, la cual pondera automáticamente cuanto debe corregir según la incertidumbre relativa entre predicción y sensor:
+
+$$
+K_{k} = \frac{P_{k}}{P_{k} + R}
+$$
+
+Con $R=0.005$, el filtro tiene a confiar más en la predicción que en el sensor IR, atenuando las lecturas ruidosas. Luego se aplica la correción:
+
+$$
+\hat{x}_k = \hat{x}_k + K_{k} \cdot (z_{k} - \hat{x}_k)
+$$
+
+Finalmente, se reduce la covarianza reflejando una reducción de la incertidumbre:
+
+$$
+P_{k} = (1 - K_{k}) \cdot P_{k}
+$$
+
+La lógica de navegación usa directamente `kf.x` para comparar contra `SAFE_DISTANCE = 0.047` (metros). Si la estimación de la distancia esta por debajo de ese umbral, el robot consulta sus sensores laterales `ps[5]` y `ps[2]` para decidir en que sentido gira, realizando una rotación sobre su eje en lugar de un giro suave.
+
+## Lógica de navegación reactiva
+
+El controlador toma decisiones en dos niveles encadenados: primero decide si girar, y luego decide hacia dónde.
+
+### Nivel 1 — Avanzar o girar
+
+La decición esta basada en la estimacion de Kalman `kf.x` y no en la lectura cruda del sensor. Esto es importante porque la estimación es más estable y no reacciona con los picos de ruido:
+
+```c
+if (kf.x < SAFE_DISTANCE) {  // SAFE_DISTANCE = 0.047 m
+    // hay obstáculo al frente → decidir giro
+} 
+// si no, avanzar recto con CRUISE_SPEED
+```
+
+El umbral `SAFE_DISTANCE = 0.047` se eligió para que el robot reaccione con anticipación ante los obstáculos y asi evitar choques.
+
+### Nivel 2 — A qué lado girar
+
+Una vez confirmada la presencia del obstáculo, se leen los sensores laterales (`ps[5]` y `ps[2]`, izquierda y derecha respectivamente) como valores crudos. La lógica de estos es inversa a la de los frontales: En el e-puck, a mayor valor crudo más cerca el obstáculo.
+
+```c
+double raw_ps5 = wb_distance_sensor_get_value(ps[5]); // lateral izquierdo
+double raw_ps2 = wb_distance_sensor_get_value(ps[2]); // lateral derecho
+
+if (raw_ps5 > raw_ps2) {
+    speed_l =  TURN_SPEED;   // +3.0
+    speed_r = -TURN_SPEED;   // -3.0  → gira a la derecha
+} else {
+    speed_l = -TURN_SPEED;   // -3.0
+    speed_r =  TURN_SPEED;   // +3.0  → gira a la izquierda
+}
+```
+
+De este modo, el robot se aleja del lado que tiene más bloqueado.
+
+#### ¿Por qué rotación pura y no giro suave?
+
+Al rotar sobre su propio eje, se evita que el robot siga acercandose al obstáculo mientras decide hacia donde girar, evitando que se hagan nuevas lecturas basura.
+
 ## Implementación del Controlador
 
 ```c
