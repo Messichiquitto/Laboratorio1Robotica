@@ -1,0 +1,135 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.577 0.577 0.577 2.09
+  position 0 0 3.2
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 0.4 0.4
+}
+
+E-puck {
+  translation -0.905 0.905 0
+  rotation 0 1 0 0
+  controller "controladorProyectoFinal"
+}
+
+Solid {
+  name "1"
+  translation 0.1 0.1 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
+
+Solid {
+  name "2"
+  translation 0.1 -0.1 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
+
+Solid {
+  name "3"
+  translation 0.1 0.9 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
+
+Solid {
+  name "4"
+  translation 0.1 0.7 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
+
+Solid {
+  name "5"
+  translation -0.9 -0.1 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
+
+Solid {
+  name "6"
+  translation -0.7 -0.1 0.045
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Box {
+        size 0.2 0.2 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.2 0.2 0.1
+  }
+}
