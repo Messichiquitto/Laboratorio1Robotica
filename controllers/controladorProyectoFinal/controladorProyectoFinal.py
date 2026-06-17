@@ -40,9 +40,9 @@ OBS_THRESHOLD  = 200.0    # Valor crudo mínimo para considerar obstáculo cerca
 # 3. RUTA GLOBAL (WAYPOINTS)
 # ──────────────────────────────────────────────────────────────
 # Lista dinámica generada por el planificador global (A* / Dijkstra)
-escenario = 'simple'  # O 'complejo', según el escenario elegido
+ESCENARIO = 'simple'  # O 'complejo', según el escenario elegido
 INICIO = (-0.905, 0.905)   # Punto de partida (x, y) en metros
-META   = (0.9, -0.9)   # Punto objetivo (x  y) en metros
+META   = (0.905, -0.905)   # Punto objetivo (x  y) en metros
 WAYPOINTS = obtener_waypoints(ESCENARIO, INICIO, META)  # Función que lee el archivo de ruta generado por el planificador
 print (f"[INFO] Waypoints cargados: {len(WAYPOINTS)} puntos desde {INICIO} hasta {META}.")
 
