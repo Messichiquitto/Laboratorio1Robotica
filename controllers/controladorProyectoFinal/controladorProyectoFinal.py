@@ -5,16 +5,16 @@ Proyecto Final – ICI 4150 Robótica y Sistemas Autónomos
 Módulo de Control, Fusión Sensorial y Navegación Local
 
 Correcciones aplicadas respecto a la versión original:
-  Bug 1 — Kalman reiniciado al detectar campo libre: el filtro ya no
-           acumula un "descuento cinemático" indefinido en zonas abiertas.
-           La guarda SAFE_DISTANCE usa la medición EMA (más estable) y no
-           la estimación Kalman en bruto.
-  Bug 2 — OBS_THRESHOLD subido de 200 → 800. Con 200 cualquier rebote de
-           IR en una pared lejana activaba la evasión. 800 corresponde a
-           ≈ 5 cm real según la LUT del e-puck.
-  Bug 3 — Odometría inicializada en INICIO = (-0.905, 0.905), que es la
-           posición real del robot en el archivo .wbt. Con (0,0) el error
-           inicial era de ≈ 1.28 m y el robot nunca convergía al primer wp.
+  Bug 1 — Kalman reiniciado al detectar campo libre.
+  Bug 2 — OBS_THRESHOLD subido de 200 → 800.
+  Bug 3 — Odometría inicializada en INICIO = (-0.905, 0.905).
+  Bug 4 — Escape del modo reactivo: si el robot lleva demasiados pasos
+           consecutivos en modo reactivo (atrapado en esquina), fuerza un
+           avance corto para salir del callejón.
+  Bug 5 — GOAL_RADIUS subido de 0.05 → 0.12 m para absorber el error
+           odométrico acumulado y el desfase celda_a_mundo vs META real.
+           Adicionalmente, planificador.py reemplaza el último waypoint
+           por la META exacta (ver ese archivo).
 """
 
 from controller import Robot
@@ -27,38 +27,43 @@ from planificador import obtener_waypoints
 # 1. PARÁMETROS DEL ROBOT E-PUCK
 # ──────────────────────────────────────────────────────────────
 WHEEL_RADIUS = 0.0205   # [m]
-WHEEL_BASE   = 0.052    # [m] distancia entre ruedas
+WHEEL_BASE   = 0.052    # [m]
 MAX_SPEED    = 6.28     # [rad/s]
 TIME_STEP    = 64       # [ms]
 
 # ──────────────────────────────────────────────────────────────
 # 2. PARÁMETROS DE NAVEGACIÓN Y CONTROL
 # ──────────────────────────────────────────────────────────────
-GOAL_RADIUS   = 0.05    # [m]  tolerancia para declarar waypoint alcanzado
-# BUG 2 CORREGIDO: threshold subido de 200 a 800
-# El e-puck retorna ~80-150 en campo abierto; 800 corresponde a ~5 cm real
-OBS_THRESHOLD = 800.0
-SAFE_DISTANCE = 0.05    # [m]  distancia mínima medida por EMA (no Kalman)
+# BUG 5 CORREGIDO: tolerancia subida de 0.05 → 0.12 m
+# Cubre el error odométrico acumulado (~5-8 cm) más el desfase
+# de media celda entre celda_a_mundo y la META real.
+GOAL_RADIUS   = 0.12
+OBS_THRESHOLD = 800.0   # BUG 2 ya corregido
+SAFE_DISTANCE = 0.05    # [m]
 CRUISE_SPEED  = 3.0     # [rad/s]
 TURN_SPEED    = 2.5     # [rad/s]
 K_LINEAR      = 3.0
 K_ANGULAR     = 6.0
 
+# BUG 4: límite de pasos reactivos consecutivos antes de forzar escape
+MAX_REACTIVE_STEPS = 25   # ≈ 1.6 s a 64 ms/paso
+ESCAPE_STEPS       = 10   # pasos de avance forzado
+
 # ──────────────────────────────────────────────────────────────
 # 3. RUTA GLOBAL (WAYPOINTS)
 # ──────────────────────────────────────────────────────────────
-# Lista dinámica generada por el planificador global (A* / Dijkstra)
-ESCENARIO = 'simple'  # O 'complejo', según el escenario elegido
-INICIO = (-0.905, 0.905)   # Punto de partida (x, y) en metros
-META   = (0.9, -0.9)   # Punto objetivo (x  y) en metros
-WAYPOINTS = obtener_waypoints(ESCENARIO, INICIO, META)  # Función que lee el archivo de ruta generado por el planificador
-print (f"[INFO] Waypoints cargados: {len(WAYPOINTS)} puntos desde {INICIO} hasta {META}.")
+ESCENARIO = 'simple'
+INICIO = (-0.905, 0.905)
+META   = (0.9, -0.9)
+WAYPOINTS = obtener_waypoints(ESCENARIO, INICIO, META)
+print(f"[INFO] Waypoints cargados: {len(WAYPOINTS)} puntos desde {INICIO} hasta {META}.")
 
 # ──────────────────────────────────────────────────────────────
 # 4. PARÁMETROS FILTRO DE KALMAN 1D
 # ──────────────────────────────────────────────────────────────
 KF_Q = 1e-4
 KF_R = 1e-2
+
 
 # ══════════════════════════════════════════════════════════════
 # CLASES DE ESTIMACIÓN Y FILTRADO
@@ -67,21 +72,16 @@ KF_R = 1e-2
 class KalmanFilter1D:
     """
     Filtro de Kalman escalar para estimar distancia frontal al obstáculo.
-
-    BUG 1 CORREGIDO:
-    Se añade reset_if_free(): cuando la medición EMA indica campo libre
-    (> 0.06 m) el filtro reinicia su estado hacia ese valor para evitar que
-    la acumulación de delta_s lo lleve a valores falsamente bajos.
+    BUG 1 CORREGIDO: reset_if_free() evita deriva acumulativa.
     """
     def __init__(self, q=KF_Q, r=KF_R, x0=0.07, p0=1.0):
         self.x   = x0
         self.P   = p0
         self.Q   = q
         self.R   = r
-        self._x0 = x0
 
     def predict(self, delta_s: float):
-        self.x -= delta_s   # distancia estimada decrece al avanzar
+        self.x -= delta_s
         self.P += self.Q
 
     def update(self, z: float) -> float:
@@ -91,17 +91,13 @@ class KalmanFilter1D:
         return self.x
 
     def reset_if_free(self, ema_dist: float, threshold: float = 0.06):
-        """
-        Si el EMA indica campo libre, reancla el filtro a ema_dist.
-        Evita la deriva acumulativa del término predict(delta_s).
-        """
         if ema_dist > threshold:
             self.x = ema_dist
             self.P = 1.0
 
 
 class EMAFilter:
-    """Filtro de Media Móvil Exponencial (EMA)."""
+    """Filtro de Media Móvil Exponencial."""
     def __init__(self, alpha=0.4, x0=0.07):
         self.alpha = alpha
         self.x     = x0
@@ -114,9 +110,7 @@ class EMAFilter:
 class Odometry:
     """
     Estimación de postura (x, y, φ) mediante modelo cinemático diferencial.
-
-    BUG 3 CORREGIDO: inicializar con la posición real del robot en el .wbt
-    (pásela como x0, y0 al construir el objeto).
+    BUG 3 CORREGIDO: inicializar con la posición real del robot en el .wbt.
     """
     def __init__(self, x0=0.0, y0=0.0, phi0=0.0):
         self.x   = x0
@@ -153,9 +147,9 @@ def compute_wheel_speeds(x, y, phi, goal_x, goal_y):
     dy   = goal_y - y
     dist = math.hypot(dx, dy)
 
-    angle_to_goal  = math.atan2(dy, dx)
-    error_phi      = Odometry._normalize(angle_to_goal - phi)
-    align          = max(0.0, math.cos(error_phi))
+    angle_to_goal = math.atan2(dy, dx)
+    error_phi     = Odometry._normalize(angle_to_goal - phi)
+    align         = max(0.0, math.cos(error_phi))
 
     v_linear  = min(K_LINEAR * dist, CRUISE_SPEED) * align
     v_angular = K_ANGULAR * error_phi
@@ -177,8 +171,7 @@ def reactive_avoidance(ps_values: list):
     """
     Evaluación reactiva basada en sensores IR.
     Retorna (vl, vr) de evasión o None si la ruta es segura.
-
-    BUG 2 CORREGIDO: OBS_THRESHOLD = 800 (antes 200).
+    BUG 2 CORREGIDO: OBS_THRESHOLD = 800.
     """
     fl, fr = ps_values[7], ps_values[0]
     sl, sr = ps_values[6], ps_values[1]
@@ -244,7 +237,7 @@ def main():
     ps = [robot.getDevice(f'ps{i}') for i in range(8)]
     for s in ps: s.enable(ts)
 
-    # BUG 3 CORREGIDO: odometría parte de la posición real en el .wbt
+    # BUG 3 CORREGIDO
     odom = Odometry(x0=INICIO[0], y0=INICIO[1], phi0=0.0)
     kf   = KalmanFilter1D()
     ema  = EMAFilter(alpha=0.4)
@@ -264,8 +257,11 @@ def main():
     if math.isnan(prev_l): prev_l = 0.0
     if math.isnan(prev_r): prev_r = 0.0
 
-    wp_idx     = 0
-    step_count = 0
+    wp_idx         = 0
+    step_count     = 0
+    # BUG 4: contadores de escape reactivo
+    reactive_steps = 0
+    escape_count   = 0
 
     print("[INFO] Controlador de Navegación Autónomo Iniciado.")
 
@@ -282,19 +278,18 @@ def main():
         x, y, phi, delta_s = odom.update(dth_r, dth_l)
 
         # ── Percepción y Filtrado ────────────────────────────────
-        ps_raw         = [s.getValue() for s in ps]
-        raw_front      = (ps_raw[7] + ps_raw[0]) / 2.0
-        raw_dist_m     = raw_to_meters(raw_front)
+        ps_raw     = [s.getValue() for s in ps]
+        raw_front  = (ps_raw[7] + ps_raw[0]) / 2.0
+        raw_dist_m = raw_to_meters(raw_front)
 
-        ema_dist       = ema.update(raw_dist_m)
+        ema_dist   = ema.update(raw_dist_m)
 
-        # BUG 1 CORREGIDO: reiniciar Kalman si campo libre
+        # BUG 1 CORREGIDO
         kf.reset_if_free(ema_dist)
         kf.predict(delta_s)
         kf_dist = kf.update(raw_dist_m)
 
-        # La guarda de emergencia usa EMA (más estable que Kalman en campo abierto)
-        dist_frontal   = max(ema_dist, 0.0)
+        dist_frontal = max(ema_dist, 0.0)
 
         # ── Máquina de estados: Waypoints ───────────────────────
         if wp_idx >= len(WAYPOINTS):
@@ -304,24 +299,47 @@ def main():
             break
 
         goal_x, goal_y = WAYPOINTS[wp_idx]
+        # BUG 5 CORREGIDO: GOAL_RADIUS = 0.12 absorbe error odométrico
         if math.hypot(goal_x - x, goal_y - y) < GOAL_RADIUS:
             print(f"[INFO] Waypoint {wp_idx} alcanzado → ({goal_x:.3f}, {goal_y:.3f})")
             wp_idx += 1
+            reactive_steps = 0
+            escape_count   = 0
             continue
 
         # ── Navegación Local ─────────────────────────────────────
         reactive = reactive_avoidance(ps_raw)
 
-        # BUG 1 CORREGIDO: la guarda usa ema_dist, no kf_dist
-        if reactive is not None or dist_frontal < SAFE_DISTANCE:
+        # BUG 4 CORREGIDO: escape de bucle reactivo infinito
+        if escape_count > 0:
+            # Modo escape: avance forzado para salir de la esquina
+            modo = 'escape'
+            vl   = CRUISE_SPEED * 0.5
+            vr   = CRUISE_SPEED * 0.5
+            escape_count -= 1
+            if escape_count == 0:
+                reactive_steps = 0   # resetear para volver a evaluar
+
+        elif reactive is not None or dist_frontal < SAFE_DISTANCE:
             modo = 'reactivo'
+            reactive_steps += 1
             if reactive is not None:
                 vl, vr = reactive
             else:
                 vl, vr = (TURN_SPEED, -TURN_SPEED) if ps_raw[7] > ps_raw[0] \
                           else (-TURN_SPEED, TURN_SPEED)
+
+            # BUG 4: si lleva demasiado tiempo girando en esquina, escapar
+            if reactive_steps > MAX_REACTIVE_STEPS:
+                print(f"[WARN] {MAX_REACTIVE_STEPS} pasos reactivos consecutivos "
+                      f"— activando modo escape.")
+                escape_count   = ESCAPE_STEPS
+                reactive_steps = 0
+
         else:
             modo = 'waypoint'
+            reactive_steps = 0
+            escape_count   = 0
             vl, vr = compute_wheel_speeds(x, y, phi, goal_x, goal_y)
 
         vl = max(-MAX_SPEED, min(MAX_SPEED, vl))
