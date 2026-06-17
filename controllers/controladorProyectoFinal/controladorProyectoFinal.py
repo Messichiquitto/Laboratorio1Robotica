@@ -47,12 +47,12 @@ K_ANGULAR     = 6.0
 # ──────────────────────────────────────────────────────────────
 # 3. RUTA GLOBAL (WAYPOINTS)
 # ──────────────────────────────────────────────────────────────
-ESCENARIO = 'simple'
-# BUG 3 CORREGIDO: posición inicial igual a la del archivo .wbt
-INICIO    = (-0.905, 0.905)
-META      = (0.9, -0.9)
-WAYPOINTS = obtener_waypoints(ESCENARIO, INICIO, META)
-print(f"[INFO] Waypoints cargados: {len(WAYPOINTS)} puntos desde {INICIO} hasta {META}.")
+# Lista dinámica generada por el planificador global (A* / Dijkstra)
+ESCENARIO = 'simple'  # O 'complejo', según el escenario elegido
+INICIO = (-0.905, 0.905)   # Punto de partida (x, y) en metros
+META   = (0.9, -0.9)   # Punto objetivo (x  y) en metros
+WAYPOINTS = obtener_waypoints(ESCENARIO, INICIO, META)  # Función que lee el archivo de ruta generado por el planificador
+print (f"[INFO] Waypoints cargados: {len(WAYPOINTS)} puntos desde {INICIO} hasta {META}.")
 
 # ──────────────────────────────────────────────────────────────
 # 4. PARÁMETROS FILTRO DE KALMAN 1D
