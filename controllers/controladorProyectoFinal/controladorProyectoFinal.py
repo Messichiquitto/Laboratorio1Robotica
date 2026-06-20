@@ -23,13 +23,13 @@ ESCENARIO_S = [( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),(
 
 ESCENARIO_C = [( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1,-1,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1,-1,-1),( 0, 0, 0, 0, 0,-1, 0,-1, 0, 0),( 0, 0, 0, 0, 0,-1, 0, 0, 0,-1),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0)]
 
-MATRIZ = ESCENARIO_C
-
-PUNTOS_S = 0
+PUNTOS_S = [(-0.1, 0.9),(-0.1, -0.3),(0.9, -0.3),(0.9, -0.9)]
 
 PUNTOS_C = [(-0.7, 0.9),(-0.7, -0.4),(-0.2, -0.4),(-0.2, 0.8),( 0.8,  0.8),( 0.8,  0.2),( 0.3,  0.2),( 0.3,  -0.5),( 0.7,  -0.5),( 0.7,  -0.9),( 0.9,  -0.9)]
 
-WAYPOINTS = PUNTOS_C
+MATRIZ = ESCENARIO_S
+
+WAYPOINTS = PUNTOS_S
 
 # ──────────────────────────────────────────────────────────────
 # 2. PARÁMETROS DEL ROBOT E-PUCK
@@ -50,9 +50,26 @@ K_LINEAR       = 3.0      # Ganancia proporcional lineal
 K_ANGULAR      = 6.0      # Ganancia proporcional angular
 OBS_THRESHOLD  = 200.0    # Valor crudo mínimo para considerar obstáculo cercano
 CELL_SIZE      = 0.2      # Tamaño de las celdas
-TURN_SPEED_NAV  = 0.8     # [rad/s] velocidad de giro
-DIST_TOL        = 0.025   # [m]  tolerancia para dar avance por terminado
+TURN_SPEED_NAV  = 0.35    # [rad/s] velocidad de giro — baja para limitar sobreimpulso por paso
+                           # a 64ms/paso: 0.35*0.064 = 0.022 rad/paso ≈ 1.3° máx sobreimpulso
+DIST_TOL        = 0.003   # [m] tolerancia de parada final (3 mm)
 ENC_TOL         = 0.01    # [rad encoder] tolerancia de parada (ajustado para WB calibrado)
+
+# Corrección de heading durante avance
+K_HEADING        = 4.0    # Ganancia P para corrección angular suave diferencial (vl/vr)
+MAX_HEADING_CORR = 0.6    # Corrección máxima [rad/s] aplicada a cada rueda (asimétrica)
+# Micro-corrección post-giro: más exigente — 1° en vez de 2° para salir mejor alineado
+POST_TURN_TOL   = 0.0175  # ~1° en radianes
+POST_TURN_SPEED = 0.3     # [rad/s] velocidad muy baja para micro-ajuste angular
+FINE_TURN_STABLE_STEPS = 3  # pasos consecutivos dentro de tolerancia para salir de FINE_TURN
+
+# Fase APPROACH: control punto-a-punto puro en los últimos centímetros
+# CELL_SIZE = 0.2m → tramos típicos de 0.5–1.3m. APPROACH activa en los últimos 3 cm.
+APPROACH_DIST   = 0.03    # [m] activa aproximación final solo en los últimos 3 cm
+APPROACH_SPEED  = 0.8     # [rad/s] velocidad en aproximación — permite frenado natural
+K_APPROACH_ANG  = 5.0     # Ganancia angular en fase de aproximación (más agresiva)
+# ODOM_SNAP eliminado: corregir solo x,y sin corregir phi creaba inconsistencia
+# entre posición "ideal" y heading real, amplificando el error en vez de reducirlo
 
 # ──────────────────────────────────────────────────────────────
 # 4. PARÁMETROS FILTRO DE KALMAN 1D
@@ -249,16 +266,39 @@ def nav_compute_turn(angle_err: float) -> tuple[float, float]:
 def nav_compute_move(dist_remaining: float,
                      angle_err: float) -> tuple[float, float]:
     """
-    Velocidades para avance recto con corrección proporcional de heading.
-    Incluye rampa de frenado en el último tramo (< 3 cm).
-    Retorna (vel_izq, vel_der).
+    Avance recto con corrección diferencial suave de heading.
+
+    La corrección angular actúa asimétricamente sobre vl/vr: una rueda va
+    ligeramente más rápido que la otra, sin invertir ninguna, de modo que
+    el robot curva suavemente hacia el ángulo deseado mientras avanza.
+
+    Fases:
+      - dist > 0.06 m : velocidad crucero completa.
+      - dist < 0.06 m : rampa de frenado progresivo.
+      - dist < 0.02 m : velocidad mínima (10 %) para precisión de parada.
     """
-    ramp      = min(1.0, dist_remaining / 0.03)
-    base      = CRUISE_SPEED * (0.4 + 0.6 * ramp)   # mínimo 40% al frenar
-    correction = K_LINEAR * angle_err
+    # ── Velocidad base con rampa de frenado ──────────────────────────────
+    if dist_remaining > 0.06:
+        base = CRUISE_SPEED
+    elif dist_remaining > 0.02:
+        ramp = (dist_remaining - 0.02) / 0.04   # 0→1 entre 2 cm y 6 cm
+        base = CRUISE_SPEED * (0.10 + 0.90 * ramp)
+    else:
+        base = CRUISE_SPEED * 0.10               # mínimo 10 % para llegar exacto
+
+    # ── Corrección diferencial acotada (no invierte ruedas) ──────────────
+    raw_corr  = K_HEADING * angle_err
+    correction = max(-MAX_HEADING_CORR, min(MAX_HEADING_CORR, raw_corr))
+
     v_l = base - correction
     v_r = base + correction
-    # Saturar sin perder la relación diferencial
+
+    # Garantizar velocidad mínima positiva en ambas ruedas
+    min_wheel = CRUISE_SPEED * 0.05
+    v_l = max(v_l, min_wheel)
+    v_r = max(v_r, min_wheel)
+
+    # Saturar sin romper la relación diferencial
     top = max(abs(v_l), abs(v_r))
     if top > MAX_SPEED:
         v_l *= MAX_SPEED / top
@@ -266,6 +306,36 @@ def nav_compute_move(dist_remaining: float,
     return v_l, v_r
  
  
+def nav_compute_approach(dist_remaining: float,
+                         angle_err: float) -> tuple[float, float]:
+    """
+    Control de aproximación final para los últimos APPROACH_DIST metros (3 cm).
+
+    A esta distancia ya no se necesita rampa: el robot llega lento desde MOVING
+    y simplemente mantiene APPROACH_SPEED con corrección angular agresiva para
+    converger al punto exacto. La rampa sería de 3cm a 0, demasiado corta para
+    tener efecto real dado el TIME_STEP de 64ms.
+    """
+    base = APPROACH_SPEED
+
+    raw_corr   = K_APPROACH_ANG * angle_err
+    correction = max(-MAX_HEADING_CORR, min(MAX_HEADING_CORR, raw_corr))
+
+    v_l = base - correction
+    v_r = base + correction
+
+    # Ambas ruedas siempre hacia adelante
+    min_wheel = APPROACH_SPEED * 0.10
+    v_l = max(v_l, min_wheel)
+    v_r = max(v_r, min_wheel)
+
+    top = max(abs(v_l), abs(v_r))
+    if top > MAX_SPEED:
+        v_l *= MAX_SPEED / top
+        v_r *= MAX_SPEED / top
+    return v_l, v_r
+
+
 def nav_dist_to_waypoint(wx: float, wy: float,
                          rx: float, ry: float) -> float:
     """Distancia euclidiana entre robot y waypoint."""
@@ -295,8 +365,18 @@ def main():
     for sensor in ps:
         sensor.enable(ts)
 
+    # IMU: fuente de heading absoluto, inmune al deslizamiento de ruedas que
+    # sesga el phi calculado por odometría pura durante los giros en el lugar.
+    imu = robot.getDevice('inertial unit')
+    imu.enable(ts)
+
+    # Sincronizar un primer paso para que el IMU entregue una lectura válida
+    # antes de inicializar la odometría con el heading real (no asumido).
+    robot.step(ts)
+    _, _, yaw0 = imu.getRollPitchYaw()
+
     # Subsistemas
-    odom = Odometry(x0=-0.9, y0=0.9, phi0=0.0)
+    odom = Odometry(x0=-0.9, y0=0.9, phi0=yaw0)
     kf   = KalmanFilter1D()
     ema  = EMAFilter(alpha=0.4)
 
@@ -324,6 +404,9 @@ def main():
     enc_turn_target = 0.0
     enc_turn_accum  = 0.0
     enc_turn_sign   = 1
+    fine_turn_done  = False   # bandera: ¿ya se hizo la micro-corrección post-giro?
+    fine_stable     = 0       # contador de pasos consecutivos dentro de POST_TURN_TOL
+    diag_moving     = False   # bandera: imprimir diagnóstico al entrar a MOVING
 
     print("[INFO] Controlador de Navegación Autónomo Iniciado.")
 
@@ -339,7 +422,18 @@ def main():
         delta_theta_l, delta_theta_r = curr_enc_l - prev_enc_l, curr_enc_r - prev_enc_r
         prev_enc_l, prev_enc_r = curr_enc_l, curr_enc_r
 
-        x, y, phi, delta_s, delta_phi = odom.update(delta_theta_r, delta_theta_l)
+        # Heading absoluto desde el IMU: inmune al deslizamiento de ruedas que
+        # sesga el delta_phi calculado por encoders durante los giros en el lugar
+        # (ver datos_trayectoria.csv: odometría reportaba ~90° de giro cuando el
+        # giro físico real era ~80°, ratio ~1.12 de sobreestimación).
+        _, _, phi_imu = imu.getRollPitchYaw()
+
+        # Se sincroniza odom.phi con el IMU ANTES de update(): así mid_phi
+        # (usado internamente para proyectar delta_s en x,y) también queda
+        # corregido, en vez de heredar el sesgo de la odometría angular pura.
+        odom.phi = phi_imu
+        x, y, _, delta_s, delta_phi = odom.update(delta_theta_r, delta_theta_l)
+        phi = phi_imu  # heading que usará toda la navegación de aquí en más
 
         # 2. Percepción y Filtrado
         ps_raw = [sensor.getValue() for sensor in ps]
@@ -367,16 +461,16 @@ def main():
             a_err  = nav_angle_error(t_hdg, phi)
  
             if modo == 'TURNING':
-                # Inicio de giro: calcular arco objetivo una sola vez
+                # ── Giro principal por encoder ───────────────────────────────────
                 if enc_turn_target == 0.0 and abs(a_err) > 0.001:
                     enc_turn_target = encoder_arc_for_angle(a_err)
                     enc_turn_accum  = 0.0
                     enc_turn_sign   = 1 if a_err > 0 else -1
+                    fine_turn_done  = False
                     print(f"[NAV] Giro iniciado: {math.degrees(a_err):.1f}° "
                           f"→ arco encoder objetivo={enc_turn_target:.4f} rad")
 
                 # Acumular arco: rueda exterior es la que avanza
-                # CCW (sign>0): rueda der avanza; CW (sign<0): rueda izq avanza
                 if enc_turn_sign > 0:
                     enc_turn_accum += abs(delta_theta_r)
                 else:
@@ -385,54 +479,97 @@ def main():
                 if enc_turn_accum >= enc_turn_target - ENC_TOL:
                     left_motor.setVelocity(0.0)
                     right_motor.setVelocity(0.0)
-                    # Corregir phi al cardinal exacto para evitar acumulación de error
-                    odom.phi = snap_to_cardinal(odom.phi)
                     enc_turn_target = 0.0
-                    modo = 'MOVING'
-                    print(f"[NAV] Giro completado. phi corregido a "
-                          f"{math.degrees(odom.phi):.1f}°. Avanzando a WP{waypoint_idx}")
+                    # Siempre pasar por FINE_TURN: el giro principal tiene sobreimpulso
+                    # variable (±1.5°) que la odometría no puede medir con exactitud.
+                    # FINE_TURN usa el ángulo al waypoint como referencia absoluta.
+                    modo = 'FINE_TURN'
+                    t_hdg = nav_target_heading(wx, wy, x, y)
+                    a_err = nav_angle_error(t_hdg, phi)
+                    print(f"[NAV] Giro principal completo. phi_imu={math.degrees(phi):.2f}° "
+                          f"err_residual={math.degrees(a_err):.2f}° → FINE_TURN")
                 else:
                     vl, vr = nav_compute_turn(a_err)
                     left_motor.setVelocity(vl)
                     right_motor.setVelocity(vr)
- 
+
+            elif modo == 'FINE_TURN':
+                # ── Micro-corrección angular proporcional post-giro ────────────
+                # Referencia: ángulo al waypoint (absoluta, no odométrica).
+                # Sale solo cuando el error se mantiene dentro de tolerancia
+                # FINE_TURN_STABLE_STEPS pasos consecutivos → evita falsos positivos.
+                t_hdg = nav_target_heading(wx, wy, x, y)
+                a_err = nav_angle_error(t_hdg, phi)
+                if abs(a_err) <= POST_TURN_TOL:
+                    fine_stable += 1
+                else:
+                    fine_stable = 0
+
+                if fine_stable >= FINE_TURN_STABLE_STEPS:
+                    left_motor.setVelocity(0.0)
+                    right_motor.setVelocity(0.0)
+                    fine_stable = 0
+                    modo = 'MOVING'
+                    diag_moving = True
+                    print(f"[NAV] FINE_TURN OK. phi={math.degrees(phi):.2f}° "
+                          f"err_final={math.degrees(a_err):.2f}°. Avanzando a WP{waypoint_idx}")
+                else:
+                    # Velocidad proporcional: frena al acercarse, mínimo 0.12 rad/s
+                    fine_spd = max(0.12, min(POST_TURN_SPEED, abs(a_err) * 5.0))
+                    if a_err > 0:
+                        vl, vr = -fine_spd, fine_spd
+                    else:
+                        vl, vr = fine_spd, -fine_spd
+                    left_motor.setVelocity(vl)
+                    right_motor.setVelocity(vr)
+
             elif modo == 'MOVING':
+                # Diagnóstico: imprime UNA vez al entrar al estado (bandera diag_moving)
+                if diag_moving:
+                    diag_moving = False
+                    _t = nav_target_heading(wx, wy, x, y)
+                    _e = nav_angle_error(_t, phi)
+                    print(f"[DIAG] WP{waypoint_idx} inicio MOVING: "
+                          f"phi={math.degrees(phi):.2f}° "
+                          f"hdg={math.degrees(_t):.2f}° "
+                          f"err_ang={math.degrees(_e):.2f}°  dist={dist:.4f}m")
                 if dist < DIST_TOL:
-                    # Waypoint alcanzado
                     left_motor.setVelocity(0.0)
                     right_motor.setVelocity(0.0)
                     print(f"[NAV] WP{waypoint_idx} alcanzado. "
-                          f"Pos=({x:.3f}, {y:.3f})")
+                          f"Pos=({x:.4f}, {y:.4f})  error=({x-wx:.4f}, {y-wy:.4f})")
                     waypoint_idx += 1
                     if waypoint_idx >= len(WAYPOINTS):
                         modo = 'FINISHED'
                         print("[NAV] ¡Meta alcanzada!")
                     else:
-                        modo = 'TURNING'   # calcular nuevo heading
+                        modo = 'TURNING'
+                elif dist < APPROACH_DIST:
+                    modo = 'APPROACH'
                 else:
                     vl, vr = nav_compute_move(dist, a_err)
                     left_motor.setVelocity(vl)
                     right_motor.setVelocity(vr)
 
-        '''reactive = reactive_avoidance(ps_raw)
-        
-        if reactive is not None or dist_frontal < SAFE_DISTANCE:
-            modo = 'reactivo'
-            if reactive is not None:
-                vl, vr = reactive
-            else:
-                vl, vr = (TURN_SPEED, -TURN_SPEED) if ps_raw[7] > ps_raw[0] else (-TURN_SPEED, TURN_SPEED)
-        else:
-            modo = 'waypoint'
-            vl, vr = compute_wheel_speeds(x, y, phi, goal_x, goal_y)
-
-        # Saturación final
-        vl = max(-MAX_SPEED, min(MAX_SPEED, vl))
-        vr = max(-MAX_SPEED, min(MAX_SPEED, vr))
-        
-        left_motor.setVelocity(vl)
-        right_motor.setVelocity(vr)
-        '''
+            elif modo == 'APPROACH':
+                # ── Aproximación precisa punto-a-punto ──────────────────────────
+                t_hdg = nav_target_heading(wx, wy, x, y)
+                a_err = nav_angle_error(t_hdg, phi)
+                if dist < DIST_TOL:
+                    left_motor.setVelocity(0.0)
+                    right_motor.setVelocity(0.0)
+                    print(f"[NAV] WP{waypoint_idx} alcanzado (APPROACH). "
+                          f"Pos=({x:.4f}, {y:.4f})  error=({x-wx:.4f}, {y-wy:.4f})")
+                    waypoint_idx += 1
+                    if waypoint_idx >= len(WAYPOINTS):
+                        modo = 'FINISHED'
+                        print("[NAV] ¡Meta alcanzada!")
+                    else:
+                        modo = 'TURNING'
+                else:
+                    vl, vr = nav_compute_approach(dist, a_err)
+                    left_motor.setVelocity(vl)
+                    right_motor.setVelocity(vr)
 
         # 5. Registro de Datos (2 Hz)
         if step_count % 8 == 0:
