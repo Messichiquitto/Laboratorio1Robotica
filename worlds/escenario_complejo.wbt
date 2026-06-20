@@ -21,7 +21,7 @@ RectangleArena {
 }
 
 E-puck {
-  translation -0.905 0.905 0
+  translation -0.9 0.9 0
   rotation 0 1 0 0
   controller "controladorProyectoFinal"
 }
