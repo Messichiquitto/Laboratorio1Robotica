@@ -147,7 +147,8 @@ Sobre esta base, la máquina de estados de navegación local
 
 La arquitectura de percepción local conserva la interpolación en unidades métricas y la
 posterior fusión sensorial mediante un **Filtro de Media Móvil Exponencial (EMA)** y un
-**Filtro de Kalman escalar 1D**. El modelo de predicción cinemática  $\hat{x}_k = \hat{x}_{k-1} - \Delta s$  permite amortiguar los picos de ruido causados por la
+**Filtro de Kalman escalar 1D**. El modelo de predicción cinemática
+$ \hat{x}_k = \hat{x}_{k-1} - \Delta s$  permite amortiguar los picos de ruido causados por la
 dispersión infrarroja en superficies diagonales. Esta señal filtrada dicta el cruce hacia la
 lógica de evasión reactiva ante cualquier objeto detectado por debajo del umbral de
 seguridad ($SAFE\_DISTANCE = 0.025\text{ m}$), evitando falsos gatillos durante la
