@@ -2,9 +2,10 @@
 controlador_proyecto.py
 =======================
 Proyecto Final – ICI 4150 Robótica y Sistemas Autónomos
-Módulo de Control, Fusión Sensorial y Navegación Local
+Módulo de Control, Fusión Sensorial, Navegación Local y Planificación Global (A*)
 
 Implementa:
+  - Planificador global A* sobre grilla de ocupación (reemplaza waypoints hardcodeados).
   - Modelo cinemático diferencial y odometría.
   - Filtrado de percepción (EMA y Kalman 1D).
   - Controlador proporcional con alineación y escalado antisaturación.
@@ -15,21 +16,31 @@ from controller import Robot
 import math
 import csv
 import os
+import heapq
 
 # ──────────────────────────────────────────────────────────────
-# 1. RUTA GLOBAL (WAYPOINTS)
+# 1. GRILLA DE OCUPACIÓN (MAPA DEL ESCENARIO)
 # ──────────────────────────────────────────────────────────────
+# Cada matriz representa el arena de 2x2 m discretizada en celdas de
+# CELL_SIZE m. 0 = celda libre, -1 = celda ocupada por un obstáculo.
+# Verificado contra las coordenadas reales de los Solid del .wbt:
+# p.ej. en el escenario complejo, la pared "1" (x:[-0.6,-0.4], y:[-0.2,1.0])
+# cae exactamente sobre la columna j=2, filas i=0..5 de ESCENARIO_C.
 ESCENARIO_S = [( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),(-1,-1, 0, 0,-1, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
 
 ESCENARIO_C = [( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1,-1,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1,-1,-1),( 0, 0, 0, 0, 0,-1, 0,-1, 0, 0),( 0, 0, 0, 0, 0,-1, 0, 0, 0,-1),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0)]
 
-PUNTOS_S = [(-0.1, 0.9),(-0.1, -0.3),(0.9, -0.3),(0.9, -0.9)]
-
-PUNTOS_C = [(-0.7, 0.9),(-0.7, -0.4),(-0.2, -0.4),(-0.2, 0.8),( 0.8,  0.8),( 0.8,  0.2),( 0.3,  0.2),( 0.3,  -0.5),( 0.7,  -0.5),( 0.7,  -0.9),( 0.9,  -0.9)]
-
+# Selección de escenario activo: cambiar a ESCENARIO_S para el mapa simple.
 MATRIZ = ESCENARIO_S
 
-WAYPOINTS = PUNTOS_S
+# Posición real del robot E-puck en el mundo .wbt (translation del nodo E-puck).
+# Es el origen físico que ancla la celda (0,0) de la grilla.
+ROBOT_START_WORLD = (-0.9, 0.9)
+
+# Punto de meta deseado en coordenadas del mundo (esquina opuesta del arena
+# en ambos escenarios de prueba). Cambiar aquí para apuntar a otra meta;
+# ya no es necesario hardcodear la ruta completa.
+GOAL_WORLD = (0.9, -0.9)
 
 # ──────────────────────────────────────────────────────────────
 # 2. PARÁMETROS DEL ROBOT E-PUCK
@@ -49,7 +60,7 @@ TURN_SPEED     = 2.0      # [rad/s] Velocidad diferencial para giro reactivo
 K_LINEAR       = 3.0      # Ganancia proporcional lineal
 K_ANGULAR      = 6.0      # Ganancia proporcional angular
 OBS_THRESHOLD  = 200.0    # Valor crudo mínimo para considerar obstáculo cercano
-CELL_SIZE      = 0.2      # Tamaño de las celdas
+CELL_SIZE      = 0.2      # Tamaño de las celdas de la grilla de ocupación [m]
 TURN_SPEED_NAV  = 0.35    # [rad/s] velocidad de giro — baja para limitar sobreimpulso por paso
                            # a 64ms/paso: 0.35*0.064 = 0.022 rad/paso ≈ 1.3° máx sobreimpulso
 DIST_TOL        = 0.003   # [m] tolerancia de parada final (3 mm)
@@ -76,6 +87,132 @@ K_APPROACH_ANG  = 5.0     # Ganancia angular en fase de aproximación (más agre
 # ──────────────────────────────────────────────────────────────
 KF_Q = 1e-4   # Varianza del modelo cinemático
 KF_R = 1e-2   # Varianza de la medición IR
+
+# ══════════════════════════════════════════════════════════════
+# PLANIFICADOR GLOBAL: A* SOBRE GRILLA DE OCUPACIÓN
+# ══════════════════════════════════════════════════════════════
+#
+# Convención de la grilla (validada contra las coordenadas reales de los
+# Solid en los archivos .wbt provistos):
+#   - Columna j crece hacia +x:  x_centro(j) = ROBOT_START_WORLD.x + CELL_SIZE * j
+#   - Fila    i crece hacia -y:  y_centro(i) = ROBOT_START_WORLD.y - CELL_SIZE * i
+#   - La celda (0,0) coincide con la posición física inicial del robot.
+#
+# Movimiento restringido a 4-conectividad (sin diagonales): así se evita el
+# clásico problema de "corner cutting" en A* sobre grillas (cruzar en
+# diagonal entre dos celdas obstáculo adyacentes), y el resultado son tramos
+# rectos horizontales/verticales — exactamente el tipo de trayectoria que el
+# controlador de navegación (TURNING → FINE_TURN → MOVING → APPROACH) espera.
+
+def world_to_grid(x: float, y: float) -> tuple[int, int]:
+    """Convierte una coordenada del mundo (x, y) al índice de celda (i, j) más cercano."""
+    j = round((x - ROBOT_START_WORLD[0]) / CELL_SIZE)
+    i = round((ROBOT_START_WORLD[1] - y) / CELL_SIZE)
+    return i, j
+
+def grid_to_world(i: int, j: int) -> tuple[float, float]:
+    """Convierte un índice de celda (i, j) al centro de esa celda en coordenadas del mundo."""
+    x = ROBOT_START_WORLD[0] + CELL_SIZE * j
+    y = ROBOT_START_WORLD[1] - CELL_SIZE * i
+    return x, y
+
+def _es_libre(matriz: list, i: int, j: int) -> bool:
+    filas, cols = len(matriz), len(matriz[0])
+    return 0 <= i < filas and 0 <= j < cols and matriz[i][j] == 0
+
+def astar(matriz: list, start: tuple[int, int], goal: tuple[int, int]) -> list:
+    """
+    A* clásico en grilla 4-conectada.
+    Heurística: distancia Manhattan (admisible y consistente para este tipo
+    de movimiento, ya que el costo real de cada paso es siempre 1).
+    Retorna la lista de celdas (i, j) desde start hasta goal, o None si no
+    existe un camino libre de obstáculos.
+    """
+    if not _es_libre(matriz, *start) or not _es_libre(matriz, *goal):
+        return None
+
+    def h(a, b):
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+    contador = 0  # desempata entradas con igual f_score en el heap
+    open_set = [(h(start, goal), contador, start)]
+    g_score = {start: 0}
+    came_from = {}
+    cerrados = set()
+
+    while open_set:
+        _, _, actual = heapq.heappop(open_set)
+        if actual in cerrados:
+            continue
+        cerrados.add(actual)
+
+        if actual == goal:
+            camino = [actual]
+            while camino[-1] in came_from:
+                camino.append(came_from[camino[-1]])
+            camino.reverse()
+            return camino
+
+        i, j = actual
+        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):  # N, S, O, E — sin diagonales
+            vecino = (i + di, j + dj)
+            if not _es_libre(matriz, *vecino):
+                continue
+            g_tentativo = g_score[actual] + 1
+            if g_tentativo < g_score.get(vecino, math.inf):
+                g_score[vecino] = g_tentativo
+                came_from[vecino] = actual
+                contador += 1
+                heapq.heappush(open_set, (g_tentativo + h(vecino, goal), contador, vecino))
+
+    return None  # No existe camino: grilla desconectada u obstáculos bloquean la meta
+
+def simplificar_camino(celdas: list) -> list:
+    """
+    Reduce la secuencia completa de celdas del A* a solo los puntos donde
+    cambia la dirección de movimiento (más el punto inicial y final).
+    Como el A* es 4-conectado, cada tramo entre puntos de giro es una línea
+    recta horizontal o vertical: el controlador de navegación solo necesita
+    los vértices, no cada celda intermedia.
+    """
+    if len(celdas) <= 2:
+        return celdas
+    simplificado = [celdas[0]]
+    direccion_prev = None
+    for k in range(1, len(celdas)):
+        direccion_actual = (celdas[k][0] - celdas[k - 1][0], celdas[k][1] - celdas[k - 1][1])
+        if direccion_prev is not None and direccion_actual != direccion_prev:
+            simplificado.append(celdas[k - 1])
+        direccion_prev = direccion_actual
+    simplificado.append(celdas[-1])
+    return simplificado
+
+def generar_waypoints(matriz: list, inicio_world: tuple, meta_world: tuple) -> list:
+    """
+    Planifica la ruta global con A* y la traduce a una lista de waypoints en
+    coordenadas del mundo, lista para ser consumida por la máquina de
+    estados de navegación local (TURNING/FINE_TURN/MOVING/APPROACH).
+
+    El primer punto (la propia celda donde ya está el robot) se descarta:
+    no tiene sentido pedirle que "navegue" hacia donde ya se encuentra.
+    """
+    start_cell = world_to_grid(*inicio_world)
+    goal_cell  = world_to_grid(*meta_world)
+
+    camino = astar(matriz, start_cell, goal_cell)
+    if camino is None:
+        raise RuntimeError(
+            f"[A*] No se encontró ruta libre de obstáculos entre {start_cell} "
+            f"y {goal_cell} en la grilla activa. Revisa MATRIZ / GOAL_WORLD."
+        )
+
+    vertices = simplificar_camino(camino)
+    waypoints = [grid_to_world(i, j) for (i, j) in vertices[1:]]
+    return waypoints
+
+# Ruta global calculada en tiempo de carga del módulo: ya no hay puntos
+# hardcodeados, se derivan de MATRIZ + ROBOT_START_WORLD + GOAL_WORLD.
+WAYPOINTS = generar_waypoints(MATRIZ, ROBOT_START_WORLD, GOAL_WORLD)
 
 # ══════════════════════════════════════════════════════════════
 # CLASES DE ESTIMACIÓN Y FILTRADO
@@ -376,9 +513,14 @@ def main():
     _, _, yaw0 = imu.getRollPitchYaw()
 
     # Subsistemas
-    odom = Odometry(x0=-0.9, y0=0.9, phi0=yaw0)
+    odom = Odometry(x0=ROBOT_START_WORLD[0], y0=ROBOT_START_WORLD[1], phi0=yaw0)
     kf   = KalmanFilter1D()
     ema  = EMAFilter(alpha=0.4)
+
+    print(f"[A*] Ruta global planificada: {len(WAYPOINTS)} waypoints "
+          f"desde {ROBOT_START_WORLD} hasta {GOAL_WORLD}")
+    for idx, wp in enumerate(WAYPOINTS):
+        print(f"  WP{idx}: ({wp[0]:.3f}, {wp[1]:.3f})")
 
     # Logging
     log_path = os.path.join(os.path.dirname(__file__), 'datos_trayectoria.csv')
