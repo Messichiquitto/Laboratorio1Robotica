@@ -31,7 +31,7 @@ ESCENARIO_S = [( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),( 0, 0, 0, 0,-1, 0, 0, 0, 0, 0),(
 ESCENARIO_C = [( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0, 0, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1,-1,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0, 0, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1,-1,-1),( 0, 0, 0, 0, 0,-1, 0,-1, 0, 0),( 0, 0, 0, 0, 0,-1, 0, 0, 0,-1),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0),( 0, 0,-1, 0, 0,-1, 0,-1, 0, 0)]
 
 # Selección de escenario activo: cambiar a ESCENARIO_S para el mapa simple.
-MATRIZ = ESCENARIO_S
+MATRIZ = ESCENARIO_C
 
 # Posición real del robot E-puck en el mundo .wbt (translation del nodo E-puck).
 # Es el origen físico que ancla la celda (0,0) de la grilla.
