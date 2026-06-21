@@ -154,8 +154,8 @@ lógica de evasión reactiva ante cualquier objeto detectado por debajo del umbr
 seguridad ($SAFE\_DISTANCE = 0.025\text{ m}$), evitando falsos gatillos durante la
 navegación en espacio libre.
 
-A diferencia del Laboratorio 2 —donde la evitación reactiva era el comportamiento
-*principal* del robot— en este proyecto pasa a ser una **capa de seguridad secundaria**:
+A diferencia del Laboratorio 2 donde la evitación reactiva era el comportamiento
+*principal* del robot en este proyecto pasa a ser una **capa de seguridad secundaria**:
 el comportamiento dominante es el seguimiento de la ruta global generada por A\*, y la
 reactividad solo interviene ante obstáculos no contemplados en la grilla de ocupación.
 
@@ -187,8 +187,8 @@ eficiencia frente a Dijkstra al incorporar una heurística admisible que dirige 
 hacia la meta en lugar de explorar uniformemente en todas direcciones.
 
 - **Movimiento:** 4-conectado (Norte/Sur/Este/Oeste), sin diagonales. Esto evita el
-  problema clásico de *corner cutting* en A\* sobre grillas —cruzar en diagonal entre dos
-  celdas obstáculo adyacentes—, y produce tramos rectos horizontales/verticales,
+  problema clásico de *corner cutting* en A\* sobre grillas cruzar en diagonal entre dos
+  celdas obstáculo adyacentes, y produce tramos rectos horizontales/verticales,
   exactamente el tipo de trayectoria que espera la máquina de estados de navegación local.
 - **Costo de cada paso:** 1 (todas las aristas tienen el mismo costo, ya que el tamaño de
   celda es uniforme).
@@ -273,7 +273,7 @@ flowchart TD
 
 ## Análisis de Señales y Resultados Obtenidos
 
-> **Nota para el equipo:** completar esta sección con los datos reales obtenidos al
+> **Nota para DIEGOZUÑIGA:** completa esta sección con los datos reales obtenidos al
 > ejecutar `datos_trayectoria.csv` en cada escenario. La estructura de tablas y gráficos
 > sugerida a continuación está alineada con las métricas pedidas en la pauta (Sección 10).
 
@@ -306,7 +306,7 @@ flowchart TD
 
 ## Conclusiones, Limitaciones y Mejoras
 
-> **Nota para el equipo:** completar con las conclusiones reales obtenidas tras ejecutar
+> **Nota para el DIEGO:** completa con las conclusiones reales obtenidas tras ejecutar
 > ambos escenarios. Como guía, considerar al menos:
 
 - **Conclusión esperada:** el sistema integra exitosamente planificación global (A\*) con
