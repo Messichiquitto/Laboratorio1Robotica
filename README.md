@@ -270,9 +270,9 @@ Esta es la lista de waypoints para cada escenario, creados a partir del algoritm
   META:    (0.900, -0.900)
   ```
 
-### Navegación
+### Mapa de Navegación
 
-![Imagen trayectoria](imagenes\grafico_trayectoria_xy.png)
+![Imagen trayectoria](imagenes/grafico_trayectoria_xy.png)
 
 
 ### Diagrama de flujo general del sistema
@@ -319,15 +319,15 @@ flowchart TD
 ### Gráficos
 1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el sensor frontal no registra detecciones durante la ejecución. El comportamiento de Kalman refleja su dinámica interna de predicción.
 
-![Gráfico filtros](imagenes\grafico_filtros_distancia.png)
+![Gráfico filtros](imagenes/grafico_filtros_distancia.png)
 
 2. **Velocidades de las ruedas:** Podemos distingir claramente cuando ocurren los giros y en que direccion, si $vr=-vl$, entonces el robot gira hacia la derecha (sentido horario) y viceversa.
 
-![Gráfico filtros](imagenes\grafico_velocidades.png)
+![Gráfico filtros](imagenes/grafico_velocidades.png)
 
 3. **Orientación del robot en el tiempo**: Antes vimos cuando el robot giraba y en que dirección, pero ahora podemos ver claramente hacia donde mira tras cada giro.
 
-![Gráfico filtros](imagenes\grafico_angulo_tiempo.png)
+![Gráfico filtros](imagenes/grafico_angulo_tiempo.png)
 
 ## Conclusiones, Limitaciones y Mejoras
 
