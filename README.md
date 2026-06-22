@@ -312,27 +312,32 @@ flowchart TD
 | N° de waypoints planificados (A\*) | 3 | 9 |
 | Longitud planificada [m] | 3.5919m | 6.3754m |
 | Longitud ejecutada [m] | 3.5998m | 6.4094m |
-| Diferencia de longitudes [m / %] | 0.0079m / 0.22% | 0.034m / 0.53% |
+| Diferencia de longitudes [m / %] | -0.0079m / -0.22% | -0.034m / -0.53% |
 | Error final de posición $\lVert(x,y)-(x_{meta},y_{meta})\rVert$ [m] | 0.0028m | 0.0027m |
 | Desviación std. durante `MOVING` [°] | 45.34° | 75.74° |
 
 ### Gráficos
-1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el sensor frontal no registra detecciones durante la ejecución. El comportamiento de Kalman refleja su dinámica interna de predicción.
+1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el sensor frontal no detecta obstáculos durante la ejecución, mientras que el comportamiento de Kalman refleja su dinámica interna de predicción.
 
 ![Gráfico filtros](imagenes/grafico_filtros_distancia.png)
 
-2. **Velocidades de las ruedas:** Podemos distingir claramente cuando ocurren los giros y en que direccion, si $vr=-vl$, entonces el robot gira hacia la derecha (sentido horario) y viceversa.
+2. **Velocidades de las ruedas:** Podemos distingir claramente el momento en que el robot gira y en que direccion; si $vr=-vl$, entonces el robot gira hacia la derecha (sentido horario) y viceversa.
 
 ![Gráfico filtros](imagenes/grafico_velocidades.png)
 
-3. **Orientación del robot en el tiempo**: Antes vimos cuando el robot giraba y en que dirección, pero ahora podemos ver claramente hacia donde mira tras cada giro.
+3. **Orientación del robot en el tiempo**: Con este gráfico podemos distingir los giros que realiza el robot a partir del ángulo medido.
 
 ![Gráfico filtros](imagenes/grafico_angulo_tiempo.png)
 
-## Conclusiones, Limitaciones y Mejoras
+4. **Distancia**: Podemos ver a que distancia se encuentra el robot de la meta a medida que este avanza.
 
-> **Nota:** completa con las conclusiones reales obtenidas tras ejecutar
-> ambos escenarios. Como guía, considerar al menos:
+![Gráfico filtros](imagenes/grafico_distancia_tiempo.png)
+
+5. **Distribución de modos**: Podemos ver en que porcentaje del tiempo el robot estuvo en ciertos modos.
+
+![Gráfico filtros](imagenes/grafico_tiempo_modos.png)
+
+## Conclusiones, Limitaciones y Mejoras
 
 - **Conclusión esperada:** el sistema integra exitosamente planificación global (A\*) con
   control local punto-a-punto y fusión sensorial, navegando autónomamente desde el inicio
