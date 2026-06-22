@@ -317,7 +317,7 @@ flowchart TD
 | Desviación std. durante `MOVING` [°] | 45.34° | 75.74° |
 
 ### Gráficos
-1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el sensor frontal no detecta obstáculos durante la ejecución, mientras que el comportamiento de Kalman refleja su dinámica interna de predicción.
+1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el robot no se ve en la necesidad de evitar ningun obstáculo, mientras que el comportamiento de Kalman refleja su dinámica interna de predicción.
 
 ![Gráfico filtros](imagenes/grafico_filtros_distancia.png)
 
