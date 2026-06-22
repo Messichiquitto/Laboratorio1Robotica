@@ -1,7 +1,7 @@
 """
 controlador_proyecto.py
 =======================
-Proyecto Final – ICI 4150 Robótica y Sistemas Autónomos
+Proyecto Final - ICI 4150 Robótica y Sistemas Autónomos
 Módulo de Control, Fusión Sensorial, Navegación Local y Planificación Global (A*)
 
 Implementa:
@@ -46,7 +46,7 @@ GOAL_WORLD = (0.9, -0.9)
 # 2. PARÁMETROS DEL ROBOT E-PUCK
 # ──────────────────────────────────────────────────────────────
 WHEEL_RADIUS   = 0.0205   # [m] Radio de rueda
-WHEEL_BASE     = 0.05910  # [m] Distancia entre ruedas — calibrado empíricamente en Webots
+WHEEL_BASE     = 0.052    # [m] Distancia entre ruedas
 MAX_SPEED      = 6.28     # [rad/s] Velocidad máxima del motor
 TIME_STEP      = 64       # [ms] Paso de simulación sincronizado
 
@@ -55,7 +55,7 @@ TIME_STEP      = 64       # [ms] Paso de simulación sincronizado
 # ──────────────────────────────────────────────────────────────
 GOAL_RADIUS    = 0.05     # [m] Radio de tolerancia para alcanzar un waypoint
 SAFE_DISTANCE  = 0.025    # [m] Umbral de colisión frontal (Filtro Kalman)
-CRUISE_SPEED   = 3.0      # [rad/s] Velocidad de avance estándar
+CRUISE_SPEED   = 5.0      # [rad/s] Velocidad de avance estándar (giros sin cambio)
 TURN_SPEED     = 2.0      # [rad/s] Velocidad diferencial para giro reactivo
 K_LINEAR       = 3.0      # Ganancia proporcional lineal
 K_ANGULAR      = 6.0      # Ganancia proporcional angular
@@ -529,7 +529,11 @@ def main():
     writer.writerow([
         'tiempo_s', 'x_est', 'y_est', 'phi_est',
         'dist_raw_m', 'dist_ema_m', 'dist_kalman_m',
-        'vl', 'vr', 'waypoint_idx', 'modo'
+        'vl', 'vr',
+        'dist_acum_m',           # longitud de trayectoria ejecutada acumulada [m]
+        'error_pos_meta_m',      # distancia euclídea al punto de meta [m]
+        'error_wp_actual_m',     # distancia al waypoint actualmente perseguido [m]
+        'waypoint_idx', 'modo'
     ])
 
     # Inicialización síncrona
@@ -550,7 +554,23 @@ def main():
     fine_stable     = 0       # contador de pasos consecutivos dentro de POST_TURN_TOL
     diag_moving     = False   # bandera: imprimir diagnóstico al entrar a MOVING
 
+    # ── Acumuladores de métricas de trayectoria ───────────────────────────
+    dist_acum       = 0.0    # longitud total de trayectoria ejecutada [m]
+    # Longitud de la ruta planificada: suma de segmentos entre waypoints consecutivos.
+    # Se puede calcular en post-proceso desde el CSV, pero se precomputa aquí
+    # para tenerla disponible en el resumen final de consola.
+    planned_length  = 0.0
+    prev_wp = ROBOT_START_WORLD
+    for wp in WAYPOINTS:
+        planned_length += math.hypot(wp[0] - prev_wp[0], wp[1] - prev_wp[1])
+        prev_wp = wp
+
+    # Trackers para escritura por evento (cambio de modo o de waypoint)
+    prev_modo       = None
+    prev_wp_idx     = -1
+
     print("[INFO] Controlador de Navegación Autónomo Iniciado.")
+    print(f"[INFO] Longitud de ruta planificada (A*): {planned_length:.4f} m  ({len(WAYPOINTS)} waypoints)")
 
     while robot.step(ts) != -1:
         t = robot.getTime()
@@ -576,6 +596,9 @@ def main():
         odom.phi = phi_imu
         x, y, _, delta_s, delta_phi = odom.update(delta_theta_r, delta_theta_l)
         phi = phi_imu  # heading que usará toda la navegación de aquí en más
+
+        # Acumular longitud real de trayectoria (solo avance positivo)
+        dist_acum += abs(delta_s)
 
         # 2. Percepción y Filtrado
         ps_raw = [sensor.getValue() for sensor in ps]
@@ -713,18 +736,54 @@ def main():
                     left_motor.setVelocity(vl)
                     right_motor.setVelocity(vr)
 
-        # 5. Registro de Datos (2 Hz)
-        if step_count % 8 == 0:
+        # 5. Registro de Datos
+        # Trigger A: periódico, con tasa adaptativa según el modo:
+        #   - MOVING / APPROACH: cada 32 pasos (~2 s) — avance suave, pocos cambios.
+        #   - TURNING / FINE_TURN / otros: cada 8 pasos (~0.5 s) — cambios rápidos de heading.
+        # Trigger B: inmediato al detectar cambio de modo o de waypoint,
+        #            para no perder transiciones entre muestras periódicas.
+        period = 32 if modo in ('MOVING', 'APPROACH') else 8
+        evento = (modo != prev_modo) or (waypoint_idx != prev_wp_idx)
+        if step_count % period == 0 or evento:
+            prev_modo   = modo
+            prev_wp_idx = waypoint_idx
+
+            error_meta = math.hypot(x - GOAL_WORLD[0], y - GOAL_WORLD[1])
+            if waypoint_idx < len(WAYPOINTS):
+                wx_log, wy_log = WAYPOINTS[waypoint_idx]
+                error_wp = nav_dist_to_waypoint(wx_log, wy_log, x, y)
+            else:
+                error_wp = 0.0
             writer.writerow([
                 f'{t:.3f}', f'{x:.4f}', f'{y:.4f}', f'{phi:.4f}',
                 f'{raw_dist_m:.4f}', f'{ema_dist:.4f}', f'{kf_dist:.4f}',
-                f'{vl:.3f}', f'{vr:.3f}', waypoint_idx, modo
+                f'{vl:.3f}', f'{vr:.3f}',
+                f'{dist_acum:.4f}',
+                f'{error_meta:.4f}',
+                f'{error_wp:.4f}',
+                waypoint_idx, modo
             ])
-            # Monitoreo básico en consola
-            print(f"[{t:6.2f}s] pos=({x:.3f}, {y:.3f}) φ={math.degrees(phi):.1f}° | wp={waypoint_idx}/{len(WAYPOINTS)} | modo={modo}")
+            if step_count % period == 0:
+                print(f"[{t:6.2f}s] pos=({x:.3f}, {y:.3f}) φ={math.degrees(phi):.1f}° | wp={waypoint_idx}/{len(WAYPOINTS)} | modo={modo}")
 
     log_file.close()
-    print(f"[INFO] Sesión finalizada. Log exportado a {log_path}")
+
+    # ── Resumen final de métricas en consola ─────────────────────────────
+    t_total = robot.getTime()
+    error_final = math.hypot(x - GOAL_WORLD[0], y - GOAL_WORLD[1])
+    exito = modo == 'FINISHED'
+    print("=" * 60)
+    print("[RESUMEN] Métricas de la ejecución")
+    print(f"  Resultado                : {'ÉXITO — meta alcanzada' if exito else 'INCOMPLETO'}")
+    print(f"  Tiempo total             : {t_total:.2f} s")
+    print(f"  Longitud planificada     : {planned_length:.4f} m")
+    print(f"  Longitud ejecutada       : {dist_acum:.4f} m")
+    print(f"  Diferencia long.         : {dist_acum - planned_length:+.4f} m  "
+          f"({(dist_acum - planned_length) / planned_length * 100:+.1f} %)")
+    print(f"  Error posición final     : {error_final:.4f} m")
+    print(f"  Waypoints completados    : {min(waypoint_idx, len(WAYPOINTS))}/{len(WAYPOINTS)}")
+    print("=" * 60)
+    print(f"[INFO] Log exportado a {log_path}")
 
 if __name__ == '__main__':
     main()

@@ -244,6 +244,37 @@ función SIMPLIFICAR_CAMINO(celdas):
     retornar vertices
 ```
 
+### Waypoints
+
+Esta es la lista de waypoints para cada escenario, creados a partir del algoritmo A* junto al inicio y meta.
+
+```py
+[SIMPLE] Waypoints reconstruidos (5 puntos):
+  INICIO:  (-0.900, 0.900)
+  WP1:     (-0.900, 0.103)
+  WP2:     (-0.503, 0.100)
+  WP3:     (-0.500, -0.897)
+  META:    (0.900, -0.900)
+
+[COMPLEJO] Waypoints reconstruidos (11 puntos):
+  INICIO:  (-0.900, 0.900)
+  WP1:     (-0.900, -0.297)
+  WP2:     (-0.103, -0.300)
+  WP3:     (-0.100, 0.698)
+  WP4:     (0.697, 0.700)
+  WP5:     (0.700, 0.103)
+  WP6:     (0.303, 0.100)
+  WP7:     (0.300, -0.497)
+  WP8:     (0.697, -0.500)
+  WP9:     (0.700, -0.897)
+  META:    (0.900, -0.900)
+  ```
+
+### Navegación
+
+![Imagen trayectoria](imagenes\grafico_trayectoria_xy.png)
+
+
 ### Diagrama de flujo general del sistema
 
 ```mermaid
@@ -273,40 +304,34 @@ flowchart TD
 
 ## Análisis de Señales y Resultados Obtenidos
 
-> **Nota para DIEGOZUÑIGA:** completa esta sección con los datos reales obtenidos al
-> ejecutar `datos_trayectoria.csv` en cada escenario. La estructura de tablas y gráficos
-> sugerida a continuación está alineada con las métricas pedidas en la pauta (Sección 10).
-
-### Métricas sugeridas por escenario
+### Métricas por escenario
 
 | Métrica | Escenario Simple | Escenario Complejo |
 |---|---|---|
-| Tiempo total hasta la meta [s] | _completar_ | _completar_ |
-| N° de waypoints planificados (A\*) | _completar_ | _completar_ |
-| Longitud de la ruta planificada [m] | _completar_ | _completar_ |
-| Longitud de la trayectoria ejecutada [m] | _completar_ | _completar_ |
-| Diferencia ruta planificada vs. ejecutada [m / %] | _completar_ | _completar_ |
-| N° de colisiones / casi-colisiones | _completar_ | _completar_ |
-| N° de activaciones de evitación reactiva | _completar_ | _completar_ |
-| Error final de posición $\lVert(x,y)-(x_{meta},y_{meta})\rVert$ [m] | _completar_ | _completar_ |
-| % de ejecuciones exitosas (de N corridas) | _completar_ | _completar_ |
+| Tiempo total [s] | 68.06s | 144.61s |
+| N° de waypoints planificados (A\*) | 3 | 9 |
+| Longitud planificada [m] | 3.5919m | 6.3754m |
+| Longitud ejecutada [m] | 3.5998m | 6.4094m |
+| Diferencia de longitudes [m / %] | 0.0079m / 0.22% | 0.034m / 0.53% |
+| Error final de posición $\lVert(x,y)-(x_{meta},y_{meta})\rVert$ [m] | 0.0028m | 0.0027m |
+| Desviación std. durante `MOVING` [°] | 45.34° | 75.74° |
 
-### Gráficos sugeridos (a generar desde `datos_trayectoria.csv`)
+### Gráficos
+1. **Sensores IR, filtros EMA y Kalman:** Los filtros se implementaron correctamente, pero dado que la ruta planificada por A* evita los obstáculos, el sensor frontal no registra detecciones durante la ejecución. El comportamiento de Kalman refleja su dinámica interna de predicción.
 
-1. **Trayectoria en el plano XY:** posición estimada $(x, y)$ superpuesta a los waypoints
-   planificados por A\*, para evidenciar cuánto se desvía la ejecución real de la ruta
-   ideal.
-2. **Orientación $\phi$ vs. tiempo:** para visualizar los giros discretos en cada
-   `TURNING`/`FINE_TURN` y la estabilización en cada `MOVING`.
-3. **Distancia frontal: cruda vs. EMA vs. Kalman, vs. tiempo:** para comparar el
-   suavizado de cada filtro frente al ruido del sensor IR, especialmente en los tramos de
-   pasillo angosto del escenario complejo.
-4. **Velocidades de rueda $v_l, v_r$ vs. tiempo:** para identificar saturaciones,
-   correcciones diferenciales y los cambios de modo de la máquina de estados.
+![Gráfico filtros](imagenes\grafico_filtros_distancia.png)
+
+2. **Velocidades de las ruedas:** Podemos distingir claramente cuando ocurren los giros y en que direccion, si $vr=-vl$, entonces el robot gira hacia la derecha (sentido horario) y viceversa.
+
+![Gráfico filtros](imagenes\grafico_velocidades.png)
+
+3. **Orientación del robot en el tiempo**: Antes vimos cuando el robot giraba y en que dirección, pero ahora podemos ver claramente hacia donde mira tras cada giro.
+
+![Gráfico filtros](imagenes\grafico_angulo_tiempo.png)
 
 ## Conclusiones, Limitaciones y Mejoras
 
-> **Nota para el DIEGO:** completa con las conclusiones reales obtenidas tras ejecutar
+> **Nota:** completa con las conclusiones reales obtenidas tras ejecutar
 > ambos escenarios. Como guía, considerar al menos:
 
 - **Conclusión esperada:** el sistema integra exitosamente planificación global (A\*) con
