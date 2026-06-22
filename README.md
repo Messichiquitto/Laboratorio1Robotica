@@ -339,7 +339,7 @@ flowchart TD
 
 ## Conclusiones, Limitaciones y Mejoras
 
-- **Conclusión esperada:** el sistema integra exitosamente planificación global (A\*) con
+- **Conclusión:** El sistema integra exitosamente planificación global (A\*) con
   control local punto-a-punto y fusión sensorial, navegando autónomamente desde el inicio
   hasta la meta en ambos escenarios sin colisiones, validando los aprendizajes de los
   Laboratorios 1 y 2 en un contexto de navegación con propósito global.
@@ -347,9 +347,7 @@ flowchart TD
   - El planificador asume un mapa estático y conocido de antemano (no hay actualización en
     línea de la grilla); obstáculos dinámicos solo se gestionan mediante la capa reactiva,
     sin replanificación.
-  - El movimiento 4-conectado de A\* puede generar rutas más largas que un planificador con
-    movimiento en 8 direcciones o continuo (p.ej. RRT), a cambio de mayor simplicidad y
-    seguridad ante corner-cutting.
+  - El movimiento en 4 direcciones de A\* puede generar rutas más largas que un planificador con movimiento en 8 direcciones o continuo, esto a cambio de una mayor simplicidad y mayor seguridad al pasar por la esquina de un bloque.
   - El tamaño de celda ($0.2\text{ m}$) impone una resolución mínima a la ruta; pasillos más
     angostos que una celda no podrían representarse correctamente en la grilla actual.
 - **Posibles mejoras:**
@@ -358,8 +356,7 @@ flowchart TD
     elegir cualquiera de ellas).
   - Inflar artificialmente los obstáculos en la grilla (*costmap inflation*) para mantener
     un margen de seguridad adicional respecto a las paredes.
-  - Extender el proyecto hacia replanificación dinámica si se detecta un obstáculo que
-    bloquea permanentemente el tramo actual de la ruta.
+  - Extender el proyecto hacia replanificación dinámica: Cambiar de ruta si se detecta un obstáculo que bloquea el camino actual.
 
 ## Instrucciones para Ejecutar la Simulación
 
